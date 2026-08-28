@@ -28,22 +28,35 @@ router.post("/pc-profile", authRequired, (req, res) => {
 });
 
 // Executar benchmark (limite aplicado no servidor)
+// Agora vem um resultado REAL medido no navegador (WebGL sintético).
 router.post("/benchmark", authRequired, (req, res) => {
-  const { game } = req.body || {};
+  const { game, fpsAvg, fpsMin, fpsMax, score, durationSec, resolution } = req.body || {};
+
   const lim = assertLimit(db, req.user, "benchmark_monthly");
   if (!lim.ok) return res.status(429).json({ error: "limite", detail: lim });
 
-  // Sem agente local, nenhuma medição real é possível.
-  // Retornamos o marcador para o frontend não apresentar NÚMEROS como reais.
-  // Em produção, um agente local enviaria a telemetria real aqui.
-  const simulated = {
-    game: game || "desconhecido",
-    simulated: true,
-    message: "Real measurement requires the FOXYN local agent (not available here). Numbers not shown."
+  // Validação: só aceita números finitos e positivos (nunca fabrica valores)
+  const validFps = (v) => typeof v === "number" && isFinite(v) && v > 0;
+  if (!validFps(fpsAvg)) {
+    return res.status(422).json({ error: "Resultado de benchmark inválido (fps médio ausente)." });
+  }
+
+  const result = {
+    game: game || "FOXYN WebGL",
+    simulated: false,
+    real: true,
+    fpsAvg: Math.round(fpsAvg * 10) / 10,
+    fpsMin: validFps(fpsMin) ? Math.round(fpsMin) : null,
+    fpsMax: validFps(fpsMax) ? Math.round(fpsMax) : null,
+    score: typeof score === "number" && isFinite(score) ? Math.round(score) : null,
+    durationSec: validFps(durationSec) ? Math.round(durationSec) : null,
+    resolution: resolution || null,
+    note: "Medido em tempo real via WebGL no navegador."
   };
-  db.addBenchmark(req.user.id, game || "desconhecido", true, simulated);
-  db.addEvent(req.user.id, "benchmark_simulado", { game });
-  return res.status(201).json({ ok: true, result: simulated, usage: lim.used + 1, limit: lim.limit });
+
+  db.addBenchmark(req.user.id, result.game, false, result);
+  db.addEvent(req.user.id, "benchmark_real", { game: result.game, fpsAvg: result.fpsAvg, score: result.score });
+  return res.status(201).json({ ok: true, result, usage: lim.used + 1, limit: lim.limit });
 });
 
 // Histórico de benchmarks

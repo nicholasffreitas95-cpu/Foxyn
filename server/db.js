@@ -171,7 +171,12 @@ const db = {
   listBenchmarks(userId) {
     return current.benchmarks
       .filter((b) => b.user_id === userId)
-      .sort((a, b) => b.created_at - a.created_at);
+      .sort((a, b) => b.created_at - a.created_at)
+      .map((b) => {
+        let parsed = null;
+        try { parsed = b.result ? JSON.parse(b.result) : null; } catch { parsed = null; }
+        return { ...b, result: parsed };
+      });
   },
 
   // ---------- Produtos / Radar ----------

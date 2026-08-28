@@ -44,6 +44,9 @@
       const me = await API.get("/auth/me");
       const limits = await API.get("/limits");
       const monitored = await API.get("/monitored");
+      let benchHistory = [];
+      try { benchHistory = await API.get("/benchmarks"); } catch {}
+      const latest = benchHistory.find((b) => b.result && b.result.real) || null;
 
       // Plano
       const sub = me.subscription;
@@ -66,9 +69,14 @@
       // Benchmark
       const bm = limits.benchmark;
       const bmBar = bm.limit === null ? 100 : Math.min(100, (bm.used / bm.limit) * 100);
+      const lastRes = latest ? latest.result : null;
+      const lastHtml = lastRes
+        ? `<p class="fox-muted" style="margin:10px 0 0">Último: <b>${lastRes.fpsAvg} FPS</b> · <span class="fox-badge ${lastRes.score >= 60 ? "fox-badge--buy" : "fox-badge--high"}">${lastRes.score}/100</span></p>`
+        : "";
       document.getElementById("benchBody").innerHTML = `
         <p class="fox-muted" style="margin:0 0 8px">${bm.used} de ${bm.limit === null ? "∞" : bm.limit} neste mês</p>
         <div class="fox-progress"><div class="fill" style="width:${bmBar}%"></div></div>
+        ${lastHtml}
         <p style="margin:12px 0 0"><a class="fox-btn fox-btn--secondary" href="benchmark.html">Rodar benchmark →</a></p>`;
 
       // PC

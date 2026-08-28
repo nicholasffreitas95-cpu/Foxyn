@@ -5,28 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Benchmark — FOXYN</title>
   <link rel="stylesheet" href="css/foxyn.css" />
+  <style>
+    #benchCanvas { width: 100%; max-width: 640px; border-radius: 12px; display: block; margin: 0 auto 12px; }
+  </style>
 </head>
 <body data-fox-page="benchmark">
   <main class="fox-main">
     <div class="fox-page-header">
       <h1>📊 Benchmark</h1>
-      <p>Meça o desempenho do seu PC em jogos.</p>
+      <p>Medição real de desempenho do seu navegador/hardware via WebGL.</p>
     </div>
 
     <div class="fox-grid fox-grid--2">
       <section class="fox-card">
         <div class="fox-card-header"><h3>Rodar benchmark</h3></div>
         <div class="fox-card-body">
-          <div class="fox-field">
-            <label for="game">Jogo</label>
-            <input id="game" class="fox-input" placeholder="Ex.: Cyberpunk 2077" />
-          </div>
-          <p class="fox-muted" style="margin:8px 0 12px">
-            📌 A medição real de FPS exige o <b>agente local FOXYN</b> (ainda não disponível).
-            Sem ele, nenhum número é apresentado como real — apenas a validação do seu
-            limite do plano acontece aqui no servidor.
+          <p class="fox-muted" style="margin:0 0 12px">
+            🎮 Uma cena 3D em <b>WebGL</b> roda no seu navegador e mede os quadros por
+            segundo de <b>verdade</b>. É um teste de desempenho sintético (GPU/CPU),
+            não uma medição de um jogo específico.
           </p>
-          <button id="btnRun" class="fox-btn fox-btn--primary fox-btn--block">Executar</button>
+          <canvas id="benchCanvas" width="640" height="480"></canvas>
+          <div id="benchStatus" class="fox-muted" style="margin:8px 0">Pronto para rodar.</div>
+          <div class="fox-progress" id="benchProgress" style="display:none"><div class="fill" style="width:0%"></div></div>
+          <button id="btnRun" class="fox-btn fox-btn--primary fox-btn--block" style="margin-top:12px">▶ Rodar benchmark</button>
         </div>
       </section>
 
@@ -37,13 +39,14 @@
     </div>
 
     <section class="fox-card" style="margin-top:16px">
-      <div class="fox-card-header"><h3>Histórico</h3></div>
+      <div class="fox-card-header"><h3>Resultados</h3></div>
       <div class="fox-card-body" id="histBody">Carregando…</div>
     </section>
   </main>
 
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/benchmark-webgl.js"></script>
   <script>
     async function refresh() {
       const limits = await API.get("/limits");
@@ -54,36 +57,88 @@
         <div class="fox-progress"><div class="fill" style="width:${bar}%"></div></div>`;
     }
 
+    function scoreColor(score) {
+      if (score >= 75) return ["good", "EXCELENTE"];
+      if (score >= 60) return ["warn", "BOM"];
+      if (score >= 40) return ["warn", "REGULAR"];
+      return ["bad", "FRACO"];
+    }
+
     async function loadHist() {
       const rows = await API.get("/benchmarks");
       const body = document.getElementById("histBody");
       if (!rows.length) {
-        body.innerHTML = '<span class="fox-muted">Nenhum benchmark registrado.</span>';
+        body.innerHTML = '<span class="fox-muted">Nenhum benchmark registrado ainda.</span>';
         return;
       }
-      body.innerHTML = '<div class="fox-table-wrap"><table class="fox-table"><thead><tr><th>Jogo</th><th>Data</th><th>Tipo</th></tr></thead><tbody>' +
-        rows.map((r) => `<tr><td>${r.game}</td><td>${new Date(r.created_at).toLocaleString("pt-BR")}</td><td>${r.simulated ? "Simulado" : "Real"}</td></tr>`).join("") +
-        '</tbody></table></div>';
+      const tr = rows.map((r) => {
+        const res = r.result || {};
+        const fps = res.real ? `${res.fpsAvg} FPS` : "—";
+        const score = res.score != null && res.real
+          ? `<span class="fox-badge ${res.score >= 60 ? "fox-badge--buy" : "fox-badge--high"}">${res.score}/100</span>`
+          : "—";
+        return `<tr><td>${r.game}</td><td>${fps}</td><td>${score}</td>
+          <td>${new Date(r.created_at).toLocaleString("pt-BR")}</td></tr>`;
+      }).join("");
+      body.innerHTML = '<div class="fox-table-wrap"><table class="fox-table"><thead><tr><th>Teste</th><th>FPS médio</th><th>Score</th><th>Data</th></tr></thead><tbody>' +
+        tr + '</tbody></table></div>';
+    }
+
+    function setStatus(msg, err) {
+      const el = document.getElementById("benchStatus");
+      el.textContent = msg;
+      el.style.color = err ? "#ff5a5a" : "";
     }
 
     document.getElementById("btnRun").addEventListener("click", async () => {
       const btn = document.getElementById("btnRun");
-      btn.classList.add("fox-btn--loading");
       btn.disabled = true;
+      btn.textContent = "Rodando…";
+      const progressEl = document.getElementById("benchProgress");
+      const fill = progressEl.querySelector(".fill");
+      progressEl.style.display = "block";
+      setStatus("Preparando cena WebGL…");
+      fill.style.width = "0%";
+
       try {
-        const game = document.getElementById("game").value.trim() || "padrão";
-        const r = await API.post("/benchmark", { game });
-        foxToast("Benchmark registrado (simulado — sem medição real).", "success");
+        if (!FoxynBenchmark.isSupported()) {
+          throw new Error("WebGL não está disponível neste navegador/dispositivo.");
+        }
+        const stats = await FoxynBenchmark.run({
+          canvas: document.getElementById("benchCanvas"),
+          durationSec: 8,
+          cubes: 150,
+          onProgress(pct, fps) {
+            fill.style.width = pct + "%";
+            setStatus(`Medindo… ${pct}% · ${fps} FPS agora`);
+          }
+        });
+        setStatus("Enviando resultado…");
+        const [cls, verdict] = scoreColor(stats.score);
+        const r = await API.post("/benchmark", {
+          game: "FOXYN WebGL",
+          fpsAvg: stats.fpsAvg,
+          fpsMin: stats.fpsMin,
+          fpsMax: stats.fpsMax,
+          score: stats.score,
+          durationSec: stats.durationSec,
+          resolution: stats.resolution
+        });
+        setStatus(`Resultado ${verdict} · ${stats.fpsAvg} FPS · Score ${stats.score}/100`);
+        foxToast(`Benchmark concluído: ${stats.fpsAvg} FPS · Score ${stats.score}`, "success");
         await refresh();
         await loadHist();
       } catch (err) {
         if (err.status === 429) {
           foxToast("Limite de benchmarks do plano atingido (3/mês no gratuito).", "error");
           setTimeout(() => (window.location.href = "planos.html"), 1600);
-        } else foxToast(err.message, "error");
+        } else {
+          setStatus(err.message || "Falha ao rodar benchmark.", true);
+          foxToast(err.message, "error");
+        }
       } finally {
-        btn.classList.remove("fox-btn--loading");
         btn.disabled = false;
+        btn.textContent = "▶ Rodar benchmark";
       }
     });
 
