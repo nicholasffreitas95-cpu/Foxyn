@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="dashboard">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>Dashboard</h1>
+      <p>Resumo do seu plano, PC e monitoramentos.</p>
+    </div>
+
+    <div class="fox-grid fox-grid--2">
+      <section class="fox-card" id="planCard">
+        <div class="fox-card-header"><h3>💎 Minha assinatura</h3></div>
+        <div class="fox-card-body" id="planBody">Carregando…</div>
+      </section>
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>📡 Produtos monitorados</h3></div>
+        <div class="fox-card-body" id="monitoredBody">Carregando…</div>
+      </section>
+    </div>
+
+    <div class="fox-grid fox-grid--2">
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>📊 Benchmark usado</h3></div>
+        <div class="fox-card-body" id="benchBody">Carregando…</div>
+      </section>
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>🖥️ Meu PC</h3></div>
+        <div class="fox-card-body" id="pcBody">Carregando…</div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function load() {
+      await initApp("dashboard");
+      const me = await API.get("/auth/me");
+      const limits = await API.get("/limits");
+      const monitored = await API.get("/monitored");
+
+      // Plano
+      const sub = me.subscription;
+      const price = fmtReais(sub.priceCents);
+      document.getElementById("planBody").innerHTML = `
+        <p style="margin:0 0 12px"><span class="fox-badge fox-badge--plan">${me.user.plan.toUpperCase()}</span></p>
+        <p class="fox-muted" style="margin:4px 0">Status: <b>${sub.status}</b></p>
+        <p class="fox-muted" style="margin:4px 0">Valor: <b>${price}</b>/mês</p>
+        <p class="fox-muted" style="margin:4px 0">Pagamento: <b>${sub.gateway}</b></p>
+        <p style="margin:16px 0 0"><a class="fox-btn fox-btn--secondary" href="planos.html">Gerenciar plano →</a></p>`;
+
+      // Monitorados
+      const mon = limits.monitored;
+      const monBar = mon.limit === null ? 100 : Math.min(100, (mon.used / mon.limit) * 100);
+      document.getElementById("monitoredBody").innerHTML = `
+        <p class="fox-muted" style="margin:0 0 8px">${mon.used} de ${mon.limit === null ? "∞" : mon.limit} em uso</p>
+        <div class="fox-progress"><div class="fill" style="width:${monBar}%"></div></div>
+        <p style="margin:12px 0 0">${monitored.map((m) => `<span class="fox-badge">${(m.product && m.product.name) || m.product_id}</span>`).join(" ") || '<span class="fox-muted">Nenhum produto monitorado. Vá ao <a href="radar-precos.html">Radar</a>.</span>'}</p>`;
+
+      // Benchmark
+      const bm = limits.benchmark;
+      const bmBar = bm.limit === null ? 100 : Math.min(100, (bm.used / bm.limit) * 100);
+      document.getElementById("benchBody").innerHTML = `
+        <p class="fox-muted" style="margin:0 0 8px">${bm.used} de ${bm.limit === null ? "∞" : bm.limit} neste mês</p>
+        <div class="fox-progress"><div class="fill" style="width:${bmBar}%"></div></div>
+        <p style="margin:12px 0 0"><a class="fox-btn fox-btn--secondary" href="benchmark.html">Rodar benchmark →</a></p>`;
+
+      // PC
+      const pc = me.pcProfile;
+      document.getElementById("pcBody").innerHTML = pc
+        ? `<p class="fox-muted" style="margin:4px 0">CPU: <b>${pc.cpu_id}</b></p>
+           <p class="fox-muted" style="margin:4px 0">GPU: <b>${pc.gpu_id}</b></p>
+           <p class="fox-muted" style="margin:4px 0">RAM: <b>${pc.ram_gb}GB</b> · Resolução: <b>${pc.resolution}</b></p>`
+        : `<p class="fox-muted" style="margin:0 0 12px">Nenhum perfil salvo ainda.</p>
+           <a class="fox-btn fox-btn--primary" href="meu-pc.html">Montar meu PC →</a>`;
+    }
+    load().catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

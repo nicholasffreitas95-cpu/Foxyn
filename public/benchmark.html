@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmark — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="benchmark">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>📊 Benchmark</h1>
+      <p>Meça o desempenho do seu PC em jogos.</p>
+    </div>
+
+    <div class="fox-grid fox-grid--2">
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Rodar benchmark</h3></div>
+        <div class="fox-card-body">
+          <div class="fox-field">
+            <label for="game">Jogo</label>
+            <input id="game" class="fox-input" placeholder="Ex.: Cyberpunk 2077" />
+          </div>
+          <p class="fox-muted" style="margin:8px 0 12px">
+            📌 A medição real de FPS exige o <b>agente local FOXYN</b> (ainda não disponível).
+            Sem ele, nenhum número é apresentado como real — apenas a validação do seu
+            limite do plano acontece aqui no servidor.
+          </p>
+          <button id="btnRun" class="fox-btn fox-btn--primary fox-btn--block">Executar</button>
+        </div>
+      </section>
+
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Uso do plano</h3></div>
+        <div class="fox-card-body" id="usageBody">Carregando…</div>
+      </section>
+    </div>
+
+    <section class="fox-card" style="margin-top:16px">
+      <div class="fox-card-header"><h3>Histórico</h3></div>
+      <div class="fox-card-body" id="histBody">Carregando…</div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function refresh() {
+      const limits = await API.get("/limits");
+      const bm = limits.benchmark;
+      const bar = bm.limit === null ? 100 : Math.min(100, (bm.used / bm.limit) * 100);
+      document.getElementById("usageBody").innerHTML = `
+        <p class="fox-muted" style="margin:0 0 8px">${bm.used} de ${bm.limit === null ? "∞" : bm.limit} neste mês</p>
+        <div class="fox-progress"><div class="fill" style="width:${bar}%"></div></div>`;
+    }
+
+    async function loadHist() {
+      const rows = await API.get("/benchmarks");
+      const body = document.getElementById("histBody");
+      if (!rows.length) {
+        body.innerHTML = '<span class="fox-muted">Nenhum benchmark registrado.</span>';
+        return;
+      }
+      body.innerHTML = '<div class="fox-table-wrap"><table class="fox-table"><thead><tr><th>Jogo</th><th>Data</th><th>Tipo</th></tr></thead><tbody>' +
+        rows.map((r) => `<tr><td>${r.game}</td><td>${new Date(r.created_at).toLocaleString("pt-BR")}</td><td>${r.simulated ? "Simulado" : "Real"}</td></tr>`).join("") +
+        '</tbody></table></div>';
+    }
+
+    document.getElementById("btnRun").addEventListener("click", async () => {
+      const btn = document.getElementById("btnRun");
+      btn.classList.add("fox-btn--loading");
+      btn.disabled = true;
+      try {
+        const game = document.getElementById("game").value.trim() || "padrão";
+        const r = await API.post("/benchmark", { game });
+        foxToast("Benchmark registrado (simulado — sem medição real).", "success");
+        await refresh();
+        await loadHist();
+      } catch (err) {
+        if (err.status === 429) {
+          foxToast("Limite de benchmarks do plano atingido (3/mês no gratuito).", "error");
+          setTimeout(() => (window.location.href = "planos.html"), 1600);
+        } else foxToast(err.message, "error");
+      } finally {
+        btn.classList.remove("fox-btn--loading");
+        btn.disabled = false;
+      }
+    });
+
+    (async () => { await initApp("benchmark"); await Promise.all([refresh(), loadHist()]); })()
+      .catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

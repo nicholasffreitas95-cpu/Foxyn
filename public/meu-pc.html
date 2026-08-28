@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu PC — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="meu-pc">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>🖥️ Meu PC</h1>
+      <p>Registre sua configuração para recomendações acertadas.</p>
+    </div>
+
+    <section class="fox-card" style="max-width:640px">
+      <div class="fox-card-body">
+        <form id="pcForm">
+          <div class="fox-field">
+            <label for="cpu">Processador (CPU)</label>
+            <input id="cpu" class="fox-input" placeholder="Ex.: Ryzen 5 7600" />
+          </div>
+          <div class="fox-field">
+            <label for="gpu">Placa de vídeo (GPU)</label>
+            <input id="gpu" class="fox-input" placeholder="Ex.: RTX 4060" />
+          </div>
+          <div class="fox-grid fox-grid--2">
+            <div class="fox-field">
+              <label for="ram">Memória RAM (GB)</label>
+              <input id="ram" type="number" class="fox-input" min="0" placeholder="Ex.: 16" />
+            </div>
+            <div class="fox-field">
+              <label for="resolution">Resolução</label>
+              <select id="resolution" class="fox-select">
+                <option value="1080p">1080p</option>
+                <option value="1440p">1440p</option>
+                <option value="4k">4K</option>
+              </select>
+            </div>
+          </div>
+          <div class="fox-field">
+            <label for="storage">Armazenamento</label>
+            <select id="storage" class="fox-select">
+              <option value="ssd">SSD</option>
+              <option value="hdd">HDD</option>
+              <option value="both">SSD + HDD</option>
+            </select>
+          </div>
+          <div id="pcMsg" class="fox-form-msg"></div>
+          <button type="submit" class="fox-btn fox-btn--primary fox-btn--block">Salvar configuração</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function load() {
+      await initApp("meu-pc");
+      const me = await API.get("/auth/me");
+      const pc = me.pcProfile;
+      if (pc) {
+        document.getElementById("cpu").value = pc.cpu_id || "";
+        document.getElementById("gpu").value = pc.gpu_id || "";
+        document.getElementById("ram").value = pc.ram_gb || "";
+        if (pc.resolution) document.getElementById("resolution").value = pc.resolution;
+        if (pc.storage) document.getElementById("storage").value = pc.storage;
+      }
+    }
+
+    document.getElementById("pcForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("pcMsg");
+      msg.className = "fox-form-msg";
+      try {
+        await API.post("/pc-profile", {
+          cpuId: document.getElementById("cpu").value.trim() || null,
+          gpuId: document.getElementById("gpu").value.trim() || null,
+          ramGB: Number(document.getElementById("ram").value) || null,
+          storage: document.getElementById("storage").value,
+          resolution: document.getElementById("resolution").value,
+          games: []
+        });
+        msg.textContent = "Configuração salva!";
+        msg.classList.add("success");
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add("error");
+      }
+    });
+
+    load().catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

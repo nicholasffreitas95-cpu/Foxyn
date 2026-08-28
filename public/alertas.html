@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alertas — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="alertas">
+  <main class="fox-main">
+    <div class="fox-page-header"><h1>🔔 Alertas</h1><p>Notificações de preço dos seus monitoramentos.</p></div>
+    <section class="fox-card"><div class="fox-card-body">
+      <div class="fox-empty"><div class="fox-empty-art">🔔</div><h3>Sem alertas por enquanto</h3>
+      <p class="fox-muted">Monitore produtos no <a href="radar-precos.html">Radar de Preços</a> para receber notificações.</p></div>
+    </div></section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>(async () => { await initApp("alertas"); })().catch((e) => foxToast(e.message, "error"));</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar de Preços — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="radar">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>📡 Radar de Preços</h1>
+      <p>Monitore ofertas e decida o melhor momento de compra.</p>
+    </div>
+
+    <section class="fox-card">
+      <div class="fox-card-body">
+        <form id="searchForm" style="display:flex;gap:8px">
+          <input id="searchInput" class="fox-input" placeholder="Ex.: RTX 4060" style="flex:1" />
+          <button type="submit" class="fox-btn fox-btn--primary">Buscar</button>
+        </form>
+        <p id="sourceNote" class="fox-muted" style="margin:8px 0 0">—</p>
+      </div>
+    </section>
+
+    <div class="fox-grid fox-grid--auto" id="grid" style="margin-top:16px">
+      <div class="fox-empty"><div class="fox-empty-art">📡</div><h3>Buscando ofertas…</h3></div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const grid = document.getElementById("grid");
+
+    async function load(q) {
+      let data;
+      try {
+        data = await API.get("/products" + (q ? "?q=" + encodeURIComponent(q) : ""));
+      } catch (err) {
+        if (err.status === 429 && err.data && err.data.error === "limite") {
+          grid.innerHTML = `<div class="fox-empty"><div class="fox-empty-art">💎</div><h3>Limite do plano atingido</h3>
+            <p>Atualize para o Essential para pesquisas ilimitadas.</p>
+            <a class="fox-btn fox-btn--primary" href="planos.html">Ver planos</a></div>`;
+          return;
+        }
+        throw err;
+      }
+
+      const source = data.source === "external" ? "Fonte: API externa de preços 🟢" : "Fonte: dados de demonstração locais (configure PRICE_API_URL para dados reais)";
+      document.getElementById("sourceNote").textContent = source;
+
+      if (!data.products || !data.products.length) {
+        grid.innerHTML = `<div class="fox-empty"><div class="fox-empty-art">🔍</div><h3>Nada encontrado</h3></div>`;
+        return;
+      }
+
+      grid.innerHTML = data.products.map((p) => {
+        const off = p.trend === null || p.trend === undefined ? 0 : p.trend;
+        const arrow = off < 0 ? "↓" : off > 0 ? "↑" : "·";
+        const stock = p.stock ? '<span class="fox-badge fox-badge--buy">Em estoque</span>' : '<span class="fox-badge fox-badge--high">Sem estoque</span>';
+        return `
+        <section class="fox-card fox-card--interactive">
+          <div class="fox-card-body">
+            <h3 style="margin:0 0 6px">${p.name}</h3>
+            <p class="fox-muted" style="margin:0 0 10px">${p.brand || ""} · ${p.store || ""}</p>
+            <p style="font-size:1.4rem;font-weight:700;margin:0 0 4px">${fmtReais(p.priceCents)}</p>
+            <p class="fox-muted" style="margin:0 0 12px">
+              <span class="fox-badge ${off <= 0 ? "fox-badge--buy" : "fox-badge--high"}">${arrow} ${Math.abs(off).toFixed(1)}%</span> ${stock}
+            </p>
+            <button class="fox-btn fox-btn--secondary btn-monitor" data-id="${p.id}" data-name="${escapeHtml(p.name)}">🔔 Monitorar</button>
+          </div>
+        </section>`;
+      }).join("");
+
+      grid.querySelectorAll(".btn-monitor").forEach((b) =>
+        b.addEventListener("click", async () => {
+          try {
+            await API.post(`/products/${b.dataset.id}/monitor`, {});
+            foxToast(`Monitorando: ${b.dataset.name}`, "success");
+          } catch (err) {
+            if (err.status === 429) {
+              foxToast("Limite de monitoramentos do plano atingido.", "error");
+              setTimeout(() => (window.location.href = "planos.html"), 1600);
+            } else foxToast(err.message, "error");
+          }
+        })
+      );
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      load(document.getElementById("searchInput").value.trim());
+    });
+
+    (async () => {
+      await initApp("radar");
+      await load("");
+    })().catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+/* ============================================================
+   FOXYN — Design System
+   Gaming + Tech + Premium + Futurista
+   Paleta: Deep Black predominante, Fox Orange como destaque
+   Fontes: Manrope (títulos/métricas) + Inter (texto)
+   ============================================================ */
+
+:root {
+  /* Cor */
+  --fox-orange: #ff6a00;
+  --fox-orange-light: #ff8c1a;
+  --fox-orange-soft: rgba(255, 106, 0, 0.12);
+  --fox-orange-glow: rgba(255, 106, 0, 0.35);
+  --fox-black: #080808;
+  --fox-dark: #121212;
+  --fox-panel: #161a1a;
+  --fox-secondary: #1a1e1e;
+  --fox-gray: #a3a3a3;
+  --fox-white: #ffffff;
+
+  /* Estados */
+  --fox-success: #3ddc84;
+  --fox-success-soft: rgba(61, 220, 132, 0.12);
+  --fox-warning: #ffc857;
+  --fox-warning-soft: rgba(255, 200, 87, 0.12);
+  --fox-danger: #ff5470;
+  --fox-danger-soft: rgba(255, 84, 112, 0.12);
+  --fox-info: #8be9ff;
+  --fox-info-soft: rgba(139, 233, 255, 0.12);
+
+  /* Texto */
+  --fox-text: #ffffff;
+  --fox-muted: #a3a3a3;
+  --fox-muted-2: #6b7280;
+
+  /* Superfícies */
+  --fox-bg: #080808;
+  --fox-surface: #161a1a;
+  --fox-surface-2: #1a1e1e;
+  --fox-surface-3: #202626;
+
+  /* Bordas */
+  --fox-border: #262b2b;
+  --fox-border-strong: #343b3b;
+  --fox-border-focus: rgba(255, 106, 0, 0.7);
+
+  /* Sombras */
+  --fox-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --fox-shadow-2: 0 6px 24px rgba(0, 0, 0, 0.5);
+  --fox-shadow-3: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --fox-glow: 0 0 0 1px rgba(255, 106, 0, 0.35), 0 8px 40px rgba(255, 106, 0, 0.18);
+
+  /* Radius */
+  --fox-radius-sm: 8px;
+  --fox-radius-md: 12px;
+  --fox-radius-lg: 16px;
+  --fox-radius-xl: 22px;
+  --fox-radius-pill: 999px;
+
+  /* Tipografia */
+  --fox-font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --fox-font-display: "Manrope", "Segoe UI", sans-serif;
+  --fox-fs-xs: 0.72rem;
+  --fox-fs-sm: 0.82rem;
+  --fox-fs-md: 0.95rem;
+  --fox-fs-lg: 1.1rem;
+  --fox-fs-xl: 1.5rem;
+  --fox-fs-2xl: 2rem;
+  --fox-fs-3xl: 2.6rem;
+  --fox-fs-4xl: 3.4rem;
+
+  /* Espaçamento */
+  --fox-space-1: 4px;
+  --fox-space-2: 8px;
+  --fox-space-3: 12px;
+  --fox-space-4: 16px;
+  --fox-space-5: 24px;
+  --fox-space-6: 32px;
+  --fox-space-7: 48px;
+
+  /* Transições */
+  --fox-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fox-t-fast: 0.15s var(--fox-ease);
+  --fox-t-med: 0.25s var(--fox-ease);
+  --fox-t-slow: 0.4s var(--fox-ease);
+
+  /* Layout */
+  --fox-sidebar-w: 250px;
+  --fox-topbar-h: 60px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--fox-topbar-h) + 12px); }
+
+body {
+  font-family: var(--fox-font-ui);
+  font-size: var(--fox-fs-md);
+  line-height: 1.55;
+  color: var(--fox-text);
+  background-color: var(--fox-bg);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255, 106, 0, 0.08), transparent),
+    radial-gradient(ellipse 50% 35% at 95% 25%, rgba(255, 106, 0, 0.04), transparent);
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--fox-orange-soft); color: var(--fox-white); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #262b2b;
+  border-radius: var(--fox-radius-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: #343b3b; }
+
+/* ---------- Tipografia ---------- */
+
+.fox-display { font-family: var(--fox-font-display); }
+
+h1, h2, h3, h4 { font-family: var(--fox-font-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
+h1 { font-size: var(--fox-fs-3xl); }
+h2 { font-size: var(--fox-fs-2xl); }
+h3 { font-size: var(--fox-fs-lg); }
+
+.fox-muted { color: var(--fox-muted); }
+.fox-accent { color: var(--fox-orange); }
+
+/* ---------- Layout App ---------- */
+
+.fox-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.fox-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--fox-sidebar-w);
+  padding: 24px 32px 64px;
+  max-width: 1240px;
+}
+
+.fox-page-header { margin-bottom: 28px; }
+.fox-page-header h1 { font-size: var(--fox-fs-2xl); }
+.fox-page-header p { color: var(--fox-muted); margin-top: 6px; font-size: var(--fox-fs-md); }
+
+/* ============================================================
+   SIDEBAR FOXYN
+   ============================================================ */
+
+.fox-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--fox-sidebar-w);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--fox-surface);
+  border-right: 1px solid var(--fox-border);
+}
+
+.fox-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  font-family: var(--fox-font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--fox-text);
+  border-bottom: 1px solid var(--fox-border);
+}
+
+.fox-brand .fox-logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--fox-orange), var(--fox-orange-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.fox-brand .mark { color: var(--fox-orange); }
+
+.fox-nav {
+  flex: 1;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.fox-nav-section { padding: 12px 14px 6px; font-size: var(--fox-fs-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--fox-muted-2); }
+
+.fox-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--fox-radius-md);
+  text-decoration: none;
+  color: var(--fox-muted);
+  font-weight: 500;
+  font-size: var(--fox-fs-md);
+  transition: color var(--fox-t-fast), background var(--fox-t-fast);
+}
+.fox-nav-item .fox-nav-icon { width: 20px; text-align: center; font-size: 1.05rem; opacity: 0.85; }
+.fox-nav-item:hover { color: var(--fox-text); background: var(--fox-surface-2); }
+.fox-nav-item.active {
+  color: var(--fox-orange);
+  background: var(--fox-orange-soft);
+}
+.fox-nav-item.active .fox-nav-icon { opacity: 1; }
+
+.fox-sidebar-footer { padding: 14px; border-top: 1px solid var(--fox-border); }
+
+.fox-userbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--fox-surface-2);
+  border: 1px solid var(--fox-border);
+  border-radius: var(--fox-radius-md);
+}
+.fox-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fox-font-display); font-weight: 700; font-size: 1rem;
+  color: #fff; background: linear-gradient(135deg, var(--fox-orange), var(--fox-orange-light));
+  flex-shrink: 0;
+}
+.fox-userbox .fox-user-info { min-width: 0; flex: 1; }
+.fox-userbox .fox-user-name { font-size: var(--fox-fs-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fox-userbox .fox-user-plan { font-size: var(--fox-fs-xs); color: var(--fox-muted); }
+
+/* Topbar mobile overlay */
+.fox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 55;
+  display: none;
+}
+
+/* ============================================================
+   BUTTONS — FOXBUTTON
+   ============================================================ */
+
+.fox-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--fox-font-ui);
+  font-size: var(--fox-fs-md);
+  font-weight: 600;
+  min-height: 42px;
+  padding: 10px 20px;
+  border-radius: var(--fox-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform var(--fox-t-fast), box-shadow var(--fox-t-med), background var(--fox-t-fast), border-color var(--fox-t-fast), opacity var(--fox-t-fast);
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.fox-btn--primary {
+  background: linear-gradient(135deg, var(--fox-orange), var(--fox-orange-light));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--fox-shadow-1);
+}
+.fox-btn--primary:hover { transform: translateY(-1px); box-shadow: var(--fox-glow); filter: brightness(1.05); }
+.fox-btn--primary:active { transform: translateY(0); filter: brightness(0.95); }
+
+.fox-btn--secondary {
+  background: transparent;
+  color: var(--fox-text);
+  border-color: var(--fox-border-strong);
+}
+.fox-btn--secondary:hover { border-color: var(--fox-orange); color: var(--fox-orange); background: var(--fox-orange-soft); }
+
+.fox-btn--ghost { background: transparent; color: var(--fox-muted); border-color: transparent; }
+.fox-btn--ghost:hover { color: var(--fox-text); background: var(--fox-surface-2); }
+
+.fox-btn--danger { color: var(--fox-danger); background: var(--fox-danger-soft); border-color: rgba(255, 84, 112, 0.35); }
+.fox-btn--danger:hover { background: rgba(255, 84, 112, 0.18); }
+
+.fox-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
+.fox-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--fox-border-focus); }
+
+.fox-btn--block { width: 100%; }
+
+/* States */
+.fox-btn--loading { position: relative; color: transparent !important; pointer-events: none; }
+.fox-btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: foxSpin 0.7s linear infinite;
+}
+@keyframes foxSpin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   CARDS — FOXCARD
+   ============================================================ */
+
+.fox-card {
+  background: var(--fox-surface);
+  border: 1px solid var(--fox-border);
+  border-radius: var(--fox-radius-lg);
+  box-shadow: var(--fox-shadow-1);
+  padding: 22px;
+  position: relative;
+}
+.fox-card--accent { border-color: rgba(255, 106, 0, 0.4); }
+.fox-card--interactive { cursor: pointer; transition: transform var(--fox-t-med), border-color var(--fox-t-med), box-shadow var(--fox-t-med); }
+.fox-card--interactive:hover { transform: translateY(-3px); border-color: var(--fox-border-strong); box-shadow: var(--fox-shadow-2); }
+
+.fox-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.fox-card-header h3 { font-size: var(--fox-fs-md); font-weight: 700; }
+.fox-card-body { color: var(--fox-muted); }
+
+/* ============================================================
+   BADGES — FOXBADGE
+   ============================================================ */
+
+.fox-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--fox-radius-pill);
+  font-size: var(--fox-fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.fox-badge--buy { color: #b6f5d2; background: var(--fox-success-soft); border-color: rgba(61,220,132,0.4); }
+.fox-badge--wait { color: #ffe08a; background: var(--fox-warning-soft); border-color: rgba(255,200,87,0.4); }
+.fox-badge--high { color: #ffa3b5; background: var(--fox-danger-soft); border-color: rgba(255,84,112,0.4); }
+.fox-badge--perf { color: var(--fox-orange); background: var(--fox-orange-soft); border-color: rgba(255,106,0,0.4); }
+.fox-badge--ult { color: #ffd9a8; background: linear-gradient(135deg, rgba(255,106,0,0.2), rgba(255,138,28,0.2)); border-color: rgba(255,106,0,0.5); }
+.fox-badge--fox { color: #8be9ff; background: var(--fox-info-soft); border-color: rgba(139,233,255,0.4); }
+.fox-badge--plan { color: var(--fox-muted); background: var(--fox-surface-2); border-color: var(--fox-border-strong); }
+
+/* ============================================================
+   SCORE — FOXSCORE (Buy Score / PC Score)
+   ============================================================ */
+
+.fox-score {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+
+.fox-score-ring {
+  --ring: 0;
+  width: 84px; height: 84px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fox-score-ring svg { transform: rotate(-90deg); }
+.fox-score-ring .track { stroke: var(--fox-border); }
+.fox-score-ring .fill {
+  stroke: var(--fox-orange);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--fox-ease);
+}
+.fox-score-ring .num {
+  position: absolute;
+  font-family: var(--fox-font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.fox-score-label { font-size: var(--fox-fs-xs); font-weight: 600; letter-spacing: 0.08em; color: var(--fox-muted); }
+.fox-score-verdict { font-family: var(--fox-font-display); font-weight: 700; font-size: var(--fox-fs-sm); }
+
+.fox-score--good .fill { stroke: var(--fox-success); }
+.fox-score--good .num, .fox-score--good .fox-score-verdict { color: var(--fox-success); }
+.fox-score--warn .fill { stroke: var(--fox-warning); }
+.fox-score--warn .num, .fox-score--warn .fox-score-verdict { color: var(--fox-warning); }
+.fox-score--bad .fill { stroke: var(--fox-danger); }
+.fox-score--bad .num, .fox-score--bad .fox-score-verdict { color: var(--fox-danger); }
+
+/* ============================================================
+   PROGRESS — FOXPROGRESS
+   ============================================================ */
+
+.fox-progress { height: 6px; background: var(--fox-surface-3); border-radius: var(--fox-radius-pill); overflow: hidden; }
+.fox-progress .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--fox-orange), var(--fox-orange-light)); transition: width 0.7s var(--fox-ease); }
+.fox-progress--success .fill { background: linear-gradient(90deg, #2fd57c, var(--fox-success)); }
+.fox-progress--warning .fill { background: linear-gradient(90deg, #ff9a3d, var(--fox-warning)); }
+.fox-progress--danger .fill { background: linear-gradient(90deg, #e83e63, var(--fox-danger)); }
+
+/* ============================================================
+   INPUTS — FOXINPUT
+   ============================================================ */
+
+.fox-label { display: flex; flex-direction: column; gap: 7px; font-size: var(--fox-fs-sm); font-weight: 600; letter-spacing: 0.02em; color: var(--fox-muted); }
+
+.fox-input, .fox-select {
+  width: 100%;
+  min-height: 44px;
+  background: var(--fox-secondary);
+  color: var(--fox-text);
+  border: 1px solid var(--fox-border-strong);
+  border-radius: var(--fox-radius-md);
+  padding: 10px 14px;
+  font-family: var(--fox-font-ui);
+  font-size: var(--fox-fs-md);
+  transition: border-color var(--fox-t-fast), box-shadow var(--fox-t-fast);
+  touch-action: manipulation;
+}
+.fox-select {
+  appearance: none;
+  background:
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a3a3a3' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat right 14px center,
+    var(--fox-secondary);
+}
+.fox-input:focus-visible, .fox-select:focus-visible {
+  outline: none;
+  border-color: var(--fox-orange);
+  box-shadow: 0 0 0 3px var(--fox-orange-glow);
+}
+.fox-input::placeholder { color: var(--fox-muted-2); }
+optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
+.fox-select option { background: var(--fox-dark); color: var(--fox-text); }
+
+/* ============================================================
+   MODAL — FOXMODAL
+   ============================================================ */
+
+.fox-overlay-modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  animation: foxFade var(--fox-t-med);
+}
+.fox-overlay-modal[hidden] { display: none; }
+
+.fox-modal {
+  position: relative;
+  width: min(430px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--fox-surface);
+  border: 1px solid var(--fox-border-strong);
+  border-radius: var(--fox-radius-xl);
+  box-shadow: var(--fox-shadow-3);
+  padding: 28px 24px;
+  animation: foxSlideUp var(--fox-t-med);
+}
+.fox-modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--fox-surface-2);
+  color: var(--fox-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.fox-modal-close:hover { background: var(--fox-danger); color: #fff; }
+
+@keyframes foxFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes foxSlideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes foxPop { 0% { transform: scale(0.95); } 100% { transform: scale(1); } }
+
+/* ============================================================
+   TABS — FOXTABS
+   ============================================================ */
+
+.fox-tabs { display: flex; gap: 4px; padding: 4px; background: var(--fox-secondary); border-radius: var(--fox-radius-md); }
+.fox-tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: var(--fox-muted); font-family: var(--fox-font-ui); font-size: var(--fox-fs-md); font-weight: 600; cursor: pointer; transition: all var(--fox-t-fast); }
+.fox-tab.active { background: var(--fox-orange-soft); color: var(--fox-orange); }
+.fox-tab:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--fox-border-focus); }
+
+/* ============================================================
+   SKELETON LOADING
+   ============================================================ */
+
+.fox-skeleton {
+  background: linear-gradient(90deg, var(--fox-surface-2) 25%, var(--fox-surface-3) 50%, var(--fox-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: foxShimmer 1.4s infinite;
+  border-radius: var(--fox-radius-md);
+}
+@keyframes foxShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ============================================================
+   NOTIFICATION / TOAST
+   ============================================================ */
+
+.fox-toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 120; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
+.fox-toast {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--fox-surface);
+  border: 1px solid var(--fox-border-strong);
+  border-left: 3px solid var(--fox-orange);
+  border-radius: var(--fox-radius-md);
+  box-shadow: var(--fox-shadow-2);
+  padding: 14px 16px;
+  font-size: var(--fox-fs-sm);
+  animation: foxSlideUp var(--fox-t-med);
+}
+.fox-toast--success { border-left-color: var(--fox-success); }
+.fox-toast--error { border-left-color: var(--fox-danger); }
+.fox-toast--info { border-left-color: var(--fox-info); }
+.fox-toast .fox-toast-msg { color: var(--fox-text); }
+
+/* ============================================================
+   GRIDS
+   ============================================================ */
+
+.fox-grid { display: grid; gap: 18px; }
+.fox-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.fox-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.fox-grid--4 { grid-template-columns: repeat(4, 1fr); }
+.fox-grid--auto { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.fox-grid--auto-2 { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+
+/* ============================================================
+   EMPTY STATES
+   ============================================================ */
+
+.fox-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px; padding: 48px 20px;
+  color: var(--fox-muted);
+}
+.fox-empty .fox-empty-art { font-size: 3.5rem; line-height: 1; }
+.fox-empty h3 { color: var(--fox-text); font-size: var(--fox-fs-lg); }
+.fox-empty p { max-width: 420px; font-size: var(--fox-fs-md); }
+
+/* ============================================================
+   MASCOTE FOXYN (avatar raposa)
+   ============================================================ */
+
+.fox-mascot {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem;
+  background: linear-gradient(135deg, var(--fox-orange), var(--fox-orange-light));
+  box-shadow: var(--fox-glow);
+  flex-shrink: 0;
+}
+.fox-mascot--sm { width: 40px; height: 40px; font-size: 1.2rem; border-radius: 12px; }
+.fox-mascot--lg { width: 84px; height: 84px; font-size: 2.6rem; border-radius: 24px; }
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.fox-table-wrap { overflow-x: auto; background: var(--fox-surface); border: 1px solid var(--fox-border); border-radius: var(--fox-radius-lg); }
+.fox-table { width: 100%; border-collapse: collapse; font-size: var(--fox-fs-sm); }
+.fox-table th { text-align: left; padding: 12px 16px; color: var(--fox-muted); font-weight: 600; border-bottom: 1px solid var(--fox-border-strong); white-space: nowrap; }
+.fox-table td { padding: 12px 16px; border-bottom: 1px solid var(--fox-border); color: var(--fox-text); }
+.fox-table tr:last-child td { border-bottom: none; }
+.fox-table tr:hover td { background: var(--fox-surface-2); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+.fox-sidebar-toggle { display: none; }
+.fox-topbar { display: none; align-items: center; gap: 12px; margin-bottom: 20px; }
+
+@media (max-width: 960px) {
+  .fox-sidebar { transform: translateX(-100%); transition: transform var(--fox-t-med); }
+  .fox-sidebar.open { transform: translateX(0); }
+  .fox-overlay.show { display: block; }
+  .fox-main { margin-left: 0; padding: 20px 18px 40px; }
+
+  .fox-sidebar-toggle {
+    display: inline-flex;
+    width: 42px; height: 42px;
+    align-items: center; justify-content: center;
+    background: var(--fox-surface-2);
+    border: 1px solid var(--fox-border);
+    border-radius: var(--fox-radius-md);
+    color: var(--fox-text);
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+
+  .fox-topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .fox-topbar .fox-mobile-brand { font-family: var(--fox-font-display); font-weight: 700; font-size: 1.2rem; }
+  .fox-topbar .fox-mobile-brand .mark { color: var(--fox-orange); }
+
+  .fox-grid--2, .fox-grid--3, .fox-grid--4 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .fox-main { padding: 16px 12px 32px; }
+  h1 { font-size: var(--fox-fs-xl); }
+  .fox-page-header h1 { font-size: var(--fox-fs-xl); }
+  .fox-grid--auto, .fox-grid--auto-2 { grid-template-columns: 1fr; }
+}
+
+/* ---------- Login split screen ---------- */
+
+.fox-login-wrap { display: flex; min-height: 100vh; }
+.fox-login-visual { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 40px; background: radial-gradient(ellipse at center, rgba(255,106,0,0.12), transparent 70%); }
+.fox-login-form { width: 460px; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 40px; background: var(--fox-surface); }
+@media (max-width: 860px) {
+  .fox-login-visual { display: none; }
+  .fox-login-form { width: 100%; min-height: 100vh; }
+}
+@media (max-width: 460px) { .fox-login-form { padding: 24px 18px; } }
+
+/* ============================================================
+   FORMS, CHECKOUT, ASSINATURA, LIMITE, ONBOARDING
+   ============================================================ */
+
+.fox-field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.fox-field label { font-size:var(--fox-fs-sm); color:var(--fox-muted); font-weight:600; }
+.fox-field input, .fox-field select, .fox-input {
+  padding:12px 14px; background:var(--fox-surface-2); color:var(--fox-text);
+  border:1px solid var(--fox-border); border-radius:var(--fox-radius-md);
+  font-family:var(--fox-font-ui); font-size:var(--fox-fs-md); outline:none; transition:border-color var(--fox-t-fast), box-shadow var(--fox-t-fast);
+}
+.fox-field input:focus, .fox-field select:focus, .fox-input:focus { border-color:var(--fox-orange); box-shadow:0 0 0 3px var(--fox-orange-soft); }
+.fox-field .hint { font-size:var(--fox-fs-xs); color:var(--fox-muted-2); }
+
+.fox-check-row { display:flex; align-items:flex-start; gap:10px; font-size:var(--fox-fs-sm); color:var(--fox-muted); margin-bottom:14px; }
+.fox-check-row input { width:18px; height:18px; accent-color:var(--fox-orange); margin-top:1px; }
+
+.fox-checkout { display:grid; grid-template-columns:1fr 340px; gap:18px; }
+.fox-checkout .summary { background:var(--fox-surface); border:1px solid var(--fox-border); border-radius:var(--fox-radius-lg); padding:20px; height:fit-content; }
+.sum-row { display:flex; justify-content:space-between; padding:8px 0; font-size:var(--fox-fs-sm); color:var(--fox-muted); border-bottom:1px solid var(--fox-border); }
+.sum-row:last-child { border-bottom:none; color:var(--fox-text); font-weight:700; font-size:var(--fox-fs-md); }
+.sum-row .total-blue { color:var(--fox-orange); font-family:var(--fox-font-display); font-weight:800; font-size:var(--fox-fs-xl); }
+
+/* Botões de forma de pagamento */
+.pay-methods { display:flex; gap:10px; margin-bottom:14px; }
+.pay-methods label { flex:1; cursor:pointer; }
+.pay-methods input { position:absolute; opacity:0; }
+.pay-methods span { display:block; text-align:center; padding:12px; background:var(--fox-surface-2); border:1px solid var(--fox-border); border-radius:var(--fox-radius-md); font-weight:600; font-size:var(--fox-fs-sm); transition:all var(--fox-t-fast); }
+.pay-methods input:checked + span { border-color:var(--fox-orange); background:var(--fox-orange-soft); color:var(--fox-orange); }
+
+.fox-form-msg { font-size:var(--fox-fs-sm); min-height:20px; margin-top:8px; }
+.fox-form-msg.error { color:var(--fox-danger); }
+.fox-form-msg.success { color:var(--fox-success); }
+
+/* Assinatura atual */
+.sub-plan { display:flex; align-items:center; gap:16px; padding:18px; background:var(--fox-surface-2); border:1px solid var(--fox-border); border-radius:var(--fox-radius-lg); margin-bottom:18px; }
+.sub-plan .big-emoji { font-size:2.4rem; }
+
+/* Componente de barra de uso vs limite */
+.limit-bar { margin-top:14px; }
+.limit-bar .top { display:flex; justify-content:space-between; font-size:var(--fox-fs-xs); color:var(--fox-muted); margin-bottom:6px; }
+
+/* Onboarding stepper */
+.ob-step { display:none; }
+.ob-step.active { display:block; animation:foxFadeIn var(--fox-t-med); }
+.ob-dots { display:flex; gap:8px; margin:16px 0; }
+.ob-dots .d { width:8px; height:8px; border-radius:50%; background:var(--fox-border-strong); transition:all var(--fox-t-fast); }
+.ob-dots .d.on { background:var(--fox-orange); width:22px; border-radius:var(--fox-radius-pill); }
+
+/* Explicação "por quê" */
+.fox-why { font-size:var(--fox-fs-sm); color:var(--fox-muted); background:var(--fox-surface-2); border-left:3px solid var(--fox-orange); border-radius:var(--fox-radius-sm); padding:10px 14px; margin-top:10px; line-height:1.55; }
+.fox-diagnose { margin-top:6px; }
+.diag-row { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--fox-border); }
+.diag-row:last-child { border-bottom:none; }
+.diag-ico { font-size:1.4rem; }
+.diag-body { flex:1; }
+.diag-body .t { font-weight:700; }
+.diag-body .m { font-size:var(--fox-fs-sm); color:var(--fox-muted); margin-top:3px; }
+
+@keyframes foxFadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }

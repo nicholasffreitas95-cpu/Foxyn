@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planos — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="planos">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>💎 Meu Plano</h1>
+      <p>Escolha o nível que combina com seu ritmo de gamer.</p>
+    </div>
+
+    <section class="fox-card" id="subCard">
+      <div class="fox-card-header"><h3>Minha assinatura</h3></div>
+      <div class="fox-card-body" id="subBody">Carregando…</div>
+    </section>
+
+    <div class="fox-grid fox-grid--3" style="margin-top:16px">
+      <section class="fox-card fox-card--interactive">
+        <div class="fox-card-body">
+          <span class="fox-badge fox-badge--plan">FREE</span>
+          <h3 style="margin:10px 0 2px">Grátis</h3>
+          <p class="fox-muted" style="margin:0 0 12px">EXPERIMENTE</p>
+          <p style="font-size:1.6rem;font-weight:700;margin:0 0 12px">R$ 0<span class="fox-muted" style="font-size:.9rem">/mês</span></p>
+          <ul style="margin:0 0 14px;padding-left:18px" class="fox-muted">
+            <li>3 benchmarks/mês</li>
+            <li>2 produtos monitorados</li>
+            <li>10 pesquisas de preço</li>
+          </ul>
+          <button class="fox-btn fox-btn--ghost fox-btn--block btn-plan" data-plan="free">Plano atual</button>
+        </div>
+      </section>
+
+      <section class="fox-card fox-card--accent fox-card--interactive">
+        <div class="fox-card-body">
+          <span class="fox-badge fox-badge--perf">RECOMENDADO</span>
+          <h3 style="margin:10px 0 2px">Essential</h3>
+          <p class="fox-muted" style="margin:0 0 12px">OTIMIZE</p>
+          <p style="font-size:1.6rem;font-weight:700;margin:0 0 12px">R$ 19,90<span class="fox-muted" style="font-size:.9rem">/mês</span></p>
+          <ul style="margin:0 0 14px;padding-left:18px" class="fox-muted">
+            <li>Benchmarks ilimitados</li>
+            <li>20 produtos monitorados</li>
+            <li>Pesquisas ilimitadas</li>
+          </ul>
+          <button class="fox-btn fox-btn--primary fox-btn--block btn-plan" data-plan="essential">Assinar Essential</button>
+        </div>
+      </section>
+
+      <section class="fox-card fox-card--interactive">
+        <div class="fox-card-body">
+          <span class="fox-badge fox-badge--ult">MÁXIMO</span>
+          <h3 style="margin:10px 0 2px">Ultimate</h3>
+          <p class="fox-muted" style="margin:0 0 12px">DECIDA MELHOR</p>
+          <p style="font-size:1.6rem;font-weight:700;margin:0 0 12px">R$ 39,90<span class="fox-muted" style="font-size:.9rem">/mês</span></p>
+          <ul style="margin:0 0 14px;padding-left:18px" class="fox-muted">
+            <li>Benchmarks ilimitados</li>
+            <li>100 produtos monitorados</li>
+            <li>Acesso total + alertas</li>
+          </ul>
+          <button class="fox-btn fox-btn--secondary fox-btn--block btn-plan" data-plan="ultimate">Assinar Ultimate</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function loadSub() {
+      const me = await API.get("/auth/me");
+      const sub = me.subscription;
+      document.getElementById("subBody").innerHTML = `
+        <p style="margin:0 0 10px"><span class="fox-badge fox-badge--plan">${me.user.plan.toUpperCase()}</span></p>
+        <p class="fox-muted" style="margin:4px 0">Status: <b>${sub.status}</b></p>
+        <p class="fox-muted" style="margin:4px 0">Valor: <b>${fmtReais(sub.priceCents)}</b>/mês · Gateway: <b>${sub.gateway}</b></p>
+        <p style="margin:12px 0 0"><button class="fox-btn fox-btn--danger" id="btnCancel">Cancelar assinatura</button></p>`;
+      document.getElementById("btnCancel")?.addEventListener("click", async () => {
+        if (!confirm("Deseja mesmo cancelar e voltar para o plano gratuito?")) return;
+        try {
+          await API.post("/subscription/cancel", {});
+          foxToast("Assinatura cancelada.", "success");
+          await loadSub();
+        } catch (e) { foxToast(e.message, "error"); }
+      });
+    }
+
+    async function changePlan(plan) {
+      try {
+        const r = await API.post("/subscription/change", { plan });
+        if (r.error === "gateway-required") {
+          foxToast(r.message, "error");
+          return;
+        }
+        foxToast("Plano atualizado com sucesso.", "success");
+        API.saveUser({ ...(API.user() || {}), plan });
+        await loadSub();
+      } catch (err) {
+        foxToast(err.message, "error");
+      }
+    }
+
+    document.querySelectorAll(".btn-plan").forEach((b) =>
+      b.addEventListener("click", () => {
+        const plan = b.dataset.plan;
+        const cur = (API.user() || {}).plan;
+        if (plan === cur) return foxToast("Você já está neste plano.", "info");
+        changePlan(plan);
+      })
+    );
+
+    (async () => { await initApp("planos"); await loadSub(); })()
+      .catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

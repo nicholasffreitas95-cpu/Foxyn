@@ -1,0 +1,29 @@
+# Render.com Blueprint — deploy de 1 clique
+# Serviço web Node.js
+services:
+  - type: web
+    name: foxyn
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PUBLIC_URL
+        fromService:
+          type: web
+          name: foxyn
+          property: url
+      # Preencha abaixo para habilitar integrações externas
+      # - key: PRICE_API_URL
+      #   value:
+      # - key: PRICE_API_KEY
+      #   value:
+      # - key: PAYMENT_WEBHOOK_SECRET
+      #   value:
+      # - key: DATABASE_URL
+      #   value:

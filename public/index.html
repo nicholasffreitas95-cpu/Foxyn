@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOXYN — O assistente pessoal do gamer</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+  <style>
+    body { background: #0b0f17; color: #e7ecf5; }
+  </style>
+</head>
+<body data-fox-page="index">
+  <div class="fox-login-wrap">
+    <div class="fox-login-visual">
+      <div class="fox-brand"><span class="fox-logo-mark">🦊</span><span>FOX<span class="mark">YN</span></span></div>
+      <h1 class="fox-display">Seu PC, decifrado.</h1>
+      <p class="fox-muted" style="max-width:460px">
+        Benchmark honesto, radar de preços e recomendações de upgrade
+        — tudo com seus dados protegidos no servidor.
+      </p>
+      <div class="fox-mascot fox-mascot--lg" aria-hidden="true">🦊</div>
+    </div>
+
+    <div class="fox-login-form">
+      <div class="fox-tabs" id="authTabs">
+        <button class="fox-tab active" data-tab="login">Entrar</button>
+        <button class="fox-tab" data-tab="register">Criar conta</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form id="loginForm" class="fox-card">
+        <h3>Bem-vindo de volta 👋</h3>
+        <div class="fox-field">
+          <label>Usuário</label>
+          <input id="loginUser" class="fox-input" autocomplete="username" required />
+        </div>
+        <div class="fox-field">
+          <label>Senha</label>
+          <input id="loginPass" type="password" class="fox-input" autocomplete="current-password" required />
+        </div>
+        <div id="loginMsg" class="fox-form-msg"></div>
+        <button type="submit" id="loginBtn" class="fox-btn fox-btn--primary fox-btn--block">Entrar</button>
+      </form>
+
+      <!-- REGISTRO -->
+      <form id="registerForm" class="fox-card hidden">
+        <h3>Crie sua conta 🦊</h3>
+        <div class="fox-field">
+          <label>Nome de usuário</label>
+          <input id="regUser" class="fox-input" autocomplete="username" required />
+        </div>
+        <div class="fox-field">
+          <label>E-mail</label>
+          <input id="regEmail" type="email" class="fox-input" autocomplete="email" required />
+        </div>
+        <div class="fox-field">
+          <label>Senha (mín. 6 caracteres)</label>
+          <input id="regPass" type="password" class="fox-input" autocomplete="new-password" required />
+        </div>
+        <div id="regMsg" class="fox-form-msg"></div>
+        <button type="submit" id="regBtn" class="fox-btn fox-btn--primary fox-btn--block">Criar conta grátis</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function showTab(name) {
+      document.querySelectorAll("#authTabs .fox-tab").forEach((t) =>
+        t.classList.toggle("active", t.dataset.tab === name)
+      );
+      document.getElementById("loginForm").classList.toggle("hidden", name !== "login");
+      document.getElementById("registerForm").classList.toggle("hidden", name !== "register");
+    }
+    document.querySelectorAll("#authTabs .fox-tab").forEach((t) =>
+      t.addEventListener("click", () => showTab(t.dataset.tab))
+    );
+
+    // Se já estiver autenticado, vai direto pro dashboard
+    if (API.isAuthed()) { window.location.href = "dashboard.html"; }
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("loginBtn");
+      const msg = document.getElementById("loginMsg");
+      btn.classList.add("fox-btn--loading");
+      btn.disabled = true;
+      msg.className = "fox-form-msg";
+      try {
+        const data = await API.post("/auth/login", {
+          username: document.getElementById("loginUser").value,
+          password: document.getElementById("loginPass").value
+        });
+        API.setToken(data.token);
+        API.saveUser(data.user);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add("error");
+        btn.classList.remove("fox-btn--loading");
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("regBtn");
+      const msg = document.getElementById("regMsg");
+      btn.classList.add("fox-btn--loading");
+      btn.disabled = true;
+      msg.className = "fox-form-msg";
+      try {
+        const data = await API.post("/auth/register", {
+          username: document.getElementById("regUser").value,
+          email: document.getElementById("regEmail").value,
+          password: document.getElementById("regPass").value
+        });
+        API.setToken(data.token);
+        API.saveUser(data.user);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.classList.add("error");
+        btn.classList.remove("fox-btn--loading");
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

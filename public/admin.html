@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="admin">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>🛠️ Painel Admin</h1>
+      <p>Métricas gerais da plataforma (acesso restrito).</p>
+    </div>
+    <div class="fox-grid fox-grid--auto" id="metrics">Carregando…</div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function load() {
+      await initApp("admin");
+      const u = API.user();
+      if (!u || !u.isAdmin) {
+        document.getElementById("metrics").innerHTML = `
+          <div class="fox-card"><div class="fox-card-body">
+            <h3>Acesso restrito</h3>
+            <p class="fox-muted">Você precisa ser administrador para ver esta página.</p>
+          </div></div>`;
+        return;
+      }
+      const m = await API.get("/admin/metrics");
+      const cards = [
+        ["👥", "Usuários", m.users],
+        ["🆓", "Gratuitos", m.free],
+        ["⭐", "Essential", m.essential],
+        ["👑", "Ultimate", m.ultimate],
+        ["📡", "Monitoramentos", m.monitored],
+        ["📈", "Conversão", m.conversion + "%"]
+      ];
+      document.getElementById("metrics").innerHTML = cards.map(([icon, label, val]) => `
+        <section class="fox-card"><div class="fox-card-body" style="text-align:center">
+          <p style="font-size:2rem;margin:0">${icon}</p>
+          <p style="font-size:1.8rem;font-weight:700;margin:4px 0">${val}</p>
+          <p class="fox-muted" style="margin:0">${label}</p>
+        </div></section>`).join("");
+    }
+    load().catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>
