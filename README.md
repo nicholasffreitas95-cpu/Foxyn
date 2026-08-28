@@ -12,7 +12,7 @@ O assistente pessoal do gamer para o seu PC: benchmark, radar de preços e recom
 FOXYN/
 ├─ server/                # Backend Node.js/Express (deploy no Render)
 │  ├─ index.js            # App Express + serve estático + middleware de segurança
-│  ├─ db.js               # SQLite (local) / pronto p/ Postgres via DATABASE_URL
+│  ├─ db.js               # Armazenamento puro JS em arquivo JSON (sem módulo nativo)
 │  ├─ auth-middleware.js  # JWT (login real, bcrypt)
 │  ├─ plans.js            # Planos e LIMITES — validação SOMENTE no servidor
 │  ├─ seed.js / auto-seed.js / seed-runner.js
@@ -90,11 +90,11 @@ Abrindo o `.env` (locl) ou as variáveis do Render (produção):
 | `PRICE_API_URL`        | URL de API real de preços. Se vazia, usa dados locais de demonstração. |
 | `PRICE_API_KEY`        | Chave da API de preços (nunca vai para o frontend).        |
 | `PAYMENT_WEBHOOK_SECRET` | Segredo para validar webhooks do gateway (Stripe/Pix/Mercado Pago). Sem isso, o checkout roda em modo **simulado** (nenhum valor cobrado). |
-| `DATABASE_URL`         | URL do **PostgreSQL** gerenciado para persistência real no Render. Se vazia, usa SQLite local (dados voláteis em instâncias efêmeras). |
+| `DATABASE_URL`         | Opcional — URL de um **PostgreSQL** gerenciado para persistência real em produção. Sem isso, o app usa um **arquivo JSON local** (`./data/`, puro JS, sem módulo nativo). |
 | `FOXYN_ADMIN_USER/PASS`| Credenciais do admin inicial.                              |
 | `JWT_SECRET`           | Segredo de assinatura dos tokens.                          |
 
-> Para dados persistentes em produção, conte com um **PostgreSQL gerenciado** (Render oferece) e defina `DATABASE_URL`.
+> Em produção com múltiplas instâncias ou dados críticos, defina `DATABASE_URL` para persistir de forma confiável; o arquivo JSON local é ideal para dev/single-instance.
 
 ---
 

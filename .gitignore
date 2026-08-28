@@ -1,11 +1,8 @@
 # Dependências
 node_modules/
 
-# Banco de dados local (SQLite) - NÃO versionar
+# Dados locais (arquivos JSON do armazenamento puro JS) - NÃO versionar
 data/
-*.db
-*.db-journal
-*.sqlite
 
 # Variáveis de ambiente / segredos
 .env

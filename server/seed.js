@@ -44,9 +44,7 @@ export function runSeed(force = false) {
       db.upsertProduct(p);
       const hist = history[p.id] || [p.priceCents];
       hist.forEach((cents, i) => {
-        db.db
-          .prepare("INSERT INTO price_history (product_id, price_cents, recorded_at) VALUES (?,?,?)")
-          .run(p.id, cents, current - (hist.length - i) * 3 * day);
+        db.addPricePointAt(p.id, cents, current - (hist.length - i) * 3 * day);
       });
     }
     console.log(`Seed: ${products.length} produtos + histórico inseridos.`);
@@ -58,8 +56,9 @@ export function runSeed(force = false) {
   if (!db.findUserByUsername(adminUser)) {
     const passHash = bcrypt.hashSync(adminPass, 10);
     db.createUser({ username: adminUser, email: "admin@foxyn.app", passHash });
-    db.db.prepare("UPDATE users SET plan='ultimate', is_admin=1 WHERE username=?").run(adminUser);
     const u = db.findUserByUsername(adminUser);
+    db.setUserPlan(u.id, "ultimate");
+    db.setAdmin(u.id);
     db.upsertSubscription({ userId: u.id, plan: "ultimate", status: "active", priceCents: 3990 });
     console.log(`Admin padrão criado: ${adminUser}`);
   } else {
