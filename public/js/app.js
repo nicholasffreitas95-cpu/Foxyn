@@ -22,6 +22,49 @@ function foxToast(msg, type = "info") {
   }, 3500);
 }
 
+// ---------- Conquistas (Ultimate) ----------
+// Chame após qualquer ação que possa desbloquear conquista.
+// Espera uma resposta com .newUnlocks (array de conquistas).
+function foxCheckUnlocks(resp) {
+  const fresh = resp && Array.isArray(resp.newUnlocks) ? resp.newUnlocks : [];
+  if (fresh.length) foxCelebrate(fresh);
+  return resp;
+}
+
+function foxCelebrate(unlocks) {
+  let overlay = document.querySelector(".fox-ach-overlay");
+  if (overlay) overlay.remove();
+  overlay = document.createElement("div");
+  overlay.className = "fox-ach-overlay";
+  overlay.innerHTML = `
+    <div class="fox-ach-modal">
+      <button class="fox-ach-close" type="button" aria-label="Fechar">✕</button>
+      <div class="fox-ach-badge">🦊 Conquista desbloqueada!</div>
+      <div class="fox-ach-list">${unlocks
+        .map(
+          (a) => `
+        <div class="fox-ach-item">
+          <span class="fox-ach-icon">${a.icon || "🏅"}</span>
+          <div>
+            <div class="fox-ach-title">${escapeHtml(a.title || "Conquista")}</div>
+            <div class="fox-ach-desc">${escapeHtml(a.desc || "")}</div>
+          </div>
+        </div>`
+        )
+        .join("")}
+      </div>
+      <a class="fox-btn fox-btn--primary" href="conquistas.html">Ver todas as conquistas</a>
+    </div>`;
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay || e.target.classList.contains("fox-ach-close")) overlay.remove();
+  });
+  document.body.appendChild(overlay);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 const NAV = [
   { section: "Principal" },
   { href: "dashboard.html", icon: "◎", label: "Dashboard" },
@@ -32,6 +75,7 @@ const NAV = [
   { href: "alertas.html", icon: "🔔", label: "Alertas" },
   { section: "Foxyn" },
   { href: "foxyn-ai.html", icon: "🦊", label: "Foxyn AI" },
+  { href: "conquistas.html", icon: "🏅", label: "Conquistas" },
   { href: "planos.html", icon: "💎", label: "Meu Plano" }
 ];
 

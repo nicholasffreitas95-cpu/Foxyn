@@ -2,14 +2,14 @@
 // FOXYN - Scraper de preços reais (Kabum + Terabyte)
 // Busca individual, extrai nome/preço/link, sem Pichau (bloqueio
 // anti-bot 403 em IP de datacenter).
+// SEM dependências externas (parse com regex/string nativa) para
+// manter o deploy em Render simples e sem módulos nativos.
 // Fontes:
-//   Kabum    -> HTML contém os dados no script #__NEXT_DATA__ (JSON).
-//               Paramos o JSON em vez do DOM (que é carregado por JS).
-//   Terabyte -> HTML estático com cards (.product-item) e preço no
-//               atributo data-tss-price.
+//   Kabum    -> dados no script #__NEXT_DATA__ (JSON embutido).
+//   Terabyte -> HTML estático com cards "product-item" (preço no
+//               atributo data-tss-price).
 // Qualquer falha lança erro -> o chamador cai no fallback local honesto.
 // ============================================================
-import * as cheerio from "cheerio";
 
 const HEADERS = {
   "User-Agent":
@@ -33,50 +33,60 @@ async function getHtml(url) {
   }
 }
 
-const reFloat = /[0-9]+(?:[.,][0-9]+)?/;
-
 // "R$ 4.399,99" ou "4399.99" -> centavos inteiros
 function centsFromText(text, fallbackNum = null) {
   const s = String(text || "").replace(/\s+/g, " ").trim();
-  if (!s) return fallbackNum != null ? Math.round(fallbackNum * 100) : null;
-  // remove tudo exceto dígitos, ',' e '.'
-  const cleaned = s.replace(/[^0-9.,]/g, "");
-  const m = cleaned.match(reFloat);
-  if (!m) {
-    if (fallbackNum != null) return Math.round(fallbackNum * 100);
-    // tenta num já numérico (ex.: data-tss-price="4399.99")
-    const n = parseFloat(s);
-    return isFinite(n) ? Math.round(n * 100) : null;
+  const m = s.match(/[0-9]+(?:[.,][0-9]+)?/);
+  let cents = null;
+  if (m) {
+    let raw = m[0];
+    // último separador é a vírgula decimal; pontos são milhar
+    if (/,\d{1,2}$/.test(raw)) raw = raw.replace(/\./g, "").replace(",", ".");
+    else raw = raw.replace(/,/g, "");
+    const n = parseFloat(raw);
+    if (isFinite(n) && n > 0) cents = Math.round(n * 100);
   }
-  let raw = m[0];
-  // último separador é a vírgula decimal; pontos são milhar
-  if (/,\d{1,2}$/.test(raw)) raw = raw.replace(/\./g, "").replace(",", ".");
-  else raw = raw.replace(/,/g, "");
-  const n = parseFloat(raw);
-  if (!isFinite(n) || n <= 0) return null;
-  return Math.round(n * 100);
+  if (cents == null && fallbackNum != null && isFinite(fallbackNum) && fallbackNum > 0) {
+    cents = Math.round(fallbackNum * 100);
+  }
+  return cents;
 }
 
 function normId(store, seed) {
-  // id estável e único por loja: "kabum-<code>" / "tera-<slug>"
   const clean = String(seed || "").replace(/[^a-zA-Z0-9-_]/g, "-").slice(0, 80);
   return `${store}-${clean || "x"}`;
 }
 
+function decodeHtmlEntities(s) {
+  return String(s)
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&iacute;/g, "í")
+    .replace(/&eacute;/g, "é")
+    .replace(/&atilde;/g, "ã")
+    .replace(/&ccedil;/g, "ç")
+    .replace(/&agrave;/g, "à")
+    .replace(/&aacute;/g, "á")
+    .replace(/&oacute;/g, "ó")
+    .replace(/&uacute;/g, "ú")
+    .replace(/&etilde;/g, "ẽ")
+    .replace(/&otilde;/g, "õ");
+}
+
 // ---------- Kabum: parse do JSON embutido (#__NEXT_DATA__) ----------
 function parseKabum(html) {
-  const $ = cheerio.load(html);
-  let data = null;
-  const raw = $("#__NEXT_DATA__").html();
-  if (raw) {
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = null;
-    }
+  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!m || !m[1]) return [];
+  let data;
+  try {
+    data = JSON.parse(m[1]);
+  } catch {
+    return [];
   }
-  if (!data) return [];
-
   const arr = data?.props?.pageProps?.data?.catalogServer?.data;
   if (!Array.isArray(arr)) return [];
 
@@ -84,13 +94,13 @@ function parseKabum(html) {
   const seen = new Set();
   for (const p of arr) {
     const price = centsFromText(null, p.price);
-    if (!(price > 0)) continue; // sem preço -> ignora
+    if (price == null) continue;
     const code = String(p.code ?? "");
     const key = code || p.name || "";
     const id = normId("kabum", code || key);
     if (seen.has(id)) continue;
     seen.add(id);
-    const url = `https://www.kabum.com.br/produto/${code}/${p.friendlyName || ""}`;
+    const url = `https://www.kabum.com.br/produto/${code}/${(p.friendlyName || "").trim()}`;
     results.push({
       id,
       name: String(p.name || "Produto"),
@@ -106,71 +116,73 @@ function parseKabum(html) {
   return results;
 }
 
-// ---------- Terabyte: parse do HTML estático (cards .product-item) ----------
+// ---------- Terabyte: parse do HTML estático (cards product-item) ----------
+// Separa a página em blocos por card (cards são irmãos em .tss-results-grid)
+// e extrai os atributos/preço/nome/link de cada um.
 function parseTerabyte(html) {
-  const $ = cheerio.load(html);
+  const chunks = html.split('class="product-item"');
   const results = [];
   const seen = new Set();
-  $("div.product-item").each((_, card) => {
-    const $card = $(card);
-    const est = $card.attr("data-tss-estoque");
-    if (est === "0") return; // esgotado -> ignora
-    const priceAttr = $card.attr("data-tss-price");
-    const $price = $card.find(".product-item__new-price span").first();
-    const price = centsFromText($price.text(), parseFloat(priceAttr));
-    if (!(price > 0)) return;
-    const $name = $card.find("a.product-item__name").first();
-    const name = $name.attr("title") || $name.find("h2").first().text() || "";
-    const href = $name.attr("href") || $card.find("a.product-item__image").first().attr("href") || "";
-    if (!name) return;
-    const id = normId("tera", name);
-    if (seen.has(id)) return;
+  for (let i = 1; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    // ignora estocados? data-tss-estoque="0" = esgotado
+    const est = chunk.match(/data-tss-estoque="(\d)"/);
+    if (est && est[1] === "0") continue;
+
+    const priceAttrMatch = chunk.match(/data-tss-price="([0-9.]+)"/);
+    const priceNum = priceAttrMatch ? parseFloat(priceAttrMatch[1]) : NaN;
+
+    const nameMatch = chunk.match(/class="product-item__name"[^>]*?\bhref="([^"]+)"[^>]*?\btitle="([^"]+)"/);
+    const href = nameMatch ? nameMatch[1] : null;
+    const title = nameMatch ? decodeHtmlEntities(nameMatch[2]) : "";
+
+    const priceSpan = chunk.match(/class="product-item__new-price"[\s\S]*?<span>([^<]+)<\/span>/);
+    const price = centsFromText(priceSpan ? priceSpan[1] : "", priceNum);
+    if (price == null) continue;
+    if (!title || !href) continue;
+
+    const id = normId("tera", title);
+    if (seen.has(id)) continue;
     seen.add(id);
-    const url = href.startsWith("http")
-      ? href
-      : `https://www.terabyteshop.com.br${href}`;
-    const oldPrice = centsFromText(
-      $card.find(".product-item__old-price del span").first().text(),
-      null
-    );
+
+    const oldPriceSpan = chunk.match(/class="product-item__old-price"[\s\S]*?<span>([^<]+)<\/span>/);
+    const brandMatch = chunk.match(/data-tss-brand="([^"]*)"/);
+
     results.push({
       id,
-      name,
-      brand: String($card.attr("data-tss-brand") || ""),
+      name: title,
+      brand: brandMatch ? decodeHtmlEntities(brandMatch[1]) : "",
       priceCents: price,
-      prevCents: oldPrice,
+      prevCents: centsFromText(oldPriceSpan ? oldPriceSpan[1] : "", null),
       store: "Terabyte",
       stock: true,
       trend: 0,
-      permalink: url
+      permalink: href.startsWith("http") ? href : `https://www.terabyteshop.com.br${href}`
     });
-  });
+  }
   return results;
 }
 
 // ---------- Principal: busca nas lojas ----------
-// query: termo de busca (obrigatório para scraping real)
 export async function scrapeStores(query) {
   const term = String(query || "").trim();
   if (!term) return [];
 
   const slug = term.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  const out = [];
-  const seen = new Set();
 
   const jobs = [];
   if (slug) {
-    jobs.push({
-      store: "Kabum",
-      run: async () => parseKabum(await getHtml(`https://www.kabum.com.br/busca/${slug}`))
-    });
+    jobs.push(async () =>
+      parseKabum(await getHtml(`https://www.kabum.com.br/busca/${encodeURIComponent(slug)}`))
+    );
   }
-  jobs.push({
-    store: "Terabyte",
-    run: async () => parseTerabyte(await getHtml(`https://www.terabyteshop.com.br/busca?str=${encodeURIComponent(term)}`))
-  });
+  jobs.push(async () =>
+    parseTerabyte(await getHtml(`https://www.terabyteshop.com.br/busca?str=${encodeURIComponent(term)}`))
+  );
 
-  const settled = await Promise.allSettled(jobs.map((j) => j.run()));
+  const out = [];
+  const seen = new Set();
+  const settled = await Promise.allSettled(jobs.map((j) => j()));
   for (const s of settled) {
     if (s.status !== "fulfilled") continue;
     for (const it of s.value) {

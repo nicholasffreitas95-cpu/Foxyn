@@ -20,6 +20,7 @@ dotenv.config({ path: path.join(__dirname, "..", ".env") });
 import authRoutes from "./routes/auth.js";
 import radarRoutes from "./routes/radar.js";
 import userRoutes from "./routes/user.js";
+import achievementsRoutes from "./routes/achievements.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", radarRoutes);
+app.use("/api", achievementsRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, service: "foxyn" }));
 

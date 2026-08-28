@@ -5,6 +5,7 @@ import { Router } from "express";
 import db from "../db.js";
 import { authRequired } from "../auth-middleware.js";
 import { PLANS, planOf, assertLimit } from "../plans.js";
+import { evaluateAndUnlock } from "../achievements.js";
 
 const router = Router();
 
@@ -24,7 +25,8 @@ router.post("/pc-profile", authRequired, (req, res) => {
   const { cpuId, gpuId, ramGB, storage, resolution, games } = req.body || {};
   db.savePcProfile(req.user.id, { cpuId, gpuId, ramGB, storage, resolution, games: games || [] });
   db.addEvent(req.user.id, "pc_perfil_atualizado", {});
-  return res.json({ ok: true });
+  const newUnlocks = evaluateAndUnlock(db, req.user);
+  return res.json({ ok: true, newUnlocks });
 });
 
 // Executar benchmark (limite aplicado no servidor)
@@ -56,7 +58,8 @@ router.post("/benchmark", authRequired, (req, res) => {
 
   db.addBenchmark(req.user.id, result.game, false, result);
   db.addEvent(req.user.id, "benchmark_real", { game: result.game, fpsAvg: result.fpsAvg, score: result.score });
-  return res.status(201).json({ ok: true, result, usage: lim.used + 1, limit: lim.limit });
+  const newUnlocks = evaluateAndUnlock(db, req.user);
+  return res.status(201).json({ ok: true, result, usage: lim.used + 1, limit: lim.limit, newUnlocks });
 });
 
 // Histórico de benchmarks

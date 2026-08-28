@@ -124,6 +124,7 @@
           durationSec: stats.durationSec,
           resolution: stats.resolution
         });
+        foxCheckUnlocks(r);
         setStatus(`Resultado ${verdict} · ${stats.fpsAvg} FPS · Score ${stats.score}/100`);
         foxToast(`Benchmark concluído: ${stats.fpsAvg} FPS · Score ${stats.score}`, "success");
         await refresh();

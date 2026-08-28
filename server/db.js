@@ -25,6 +25,7 @@ function blank() {
     products: [],       // { id,name,brand,price_cents,prev_cents,store,stock,trend }
     price_history: [],  // { id,product_id,price_cents,recorded_at }
     events: [],         // { id,user_id,event,payload,created_at }
+    achievements: [],   // { id,user_id,key,unlocked_at }
     seq: 0
   };
 }
@@ -220,6 +221,23 @@ const db = {
   addEvent(userId, event, payload) {
     current.seq += 1;
     current.events.push({ id: current.seq, user_id: userId ?? null, event, payload: payload ? JSON.stringify(payload) : null, created_at: Date.now() });
+    this.persist();
+  },
+  countEvents(userId, event) {
+    return current.events.filter((e) => e.user_id === userId && e.event === event).length;
+  },
+
+  // ---------- Conquistas (Ultimate) ----------
+  getUserAchievements(userId) {
+    return current.achievements.filter((a) => a.user_id === userId).map((a) => a.key);
+  },
+  unlockAchievement(userId, key) {
+    const exists = current.achievements.find((a) => a.user_id === userId && a.key === key);
+    if (exists) return false;
+    current.seq += 1;
+    current.achievements.push({ id: current.seq, user_id: userId, key, unlocked_at: Date.now() });
+    this.persist();
+    return true;
   },
 
   // ---------- Métricas (admin) ----------

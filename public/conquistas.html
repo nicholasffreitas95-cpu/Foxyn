@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conquistas — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+</head>
+<body data-fox-page="conquistas">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>🏅 Conquistas</h1>
+      <p>Desbloqueie medalhas exclusivas e mostre que você é uma lenda do setup.</p>
+    </div>
+
+    <section class="fox-card" id="achCard">
+      <div class="fox-card-body" id="achBody">
+        <div class="fox-empty" style="padding:30px 0"><div class="fox-skeleton" style="width:200px;height:20px;margin:auto;border-radius:8px"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    async function load() {
+      await initApp("conquistas");
+      const me = await API.get("/auth/me");
+      const data = await API.get("/achievements");
+      const card = document.getElementById("achCard");
+
+      const hero = `
+        <div class="ach-hero">
+          <div class="ach-count">${data.count} / ${data.total}</div>
+          <p class="fox-muted" style="margin:4px 0 0">conquistas desbloqueadas</p>
+        </div>`;
+
+      let body = hero;
+
+      if (!data.ultimate) {
+        // Não-Ultimate: mostra o catálogo bloqueado + CTA de upgrade
+        body += `
+          <div class="fox-why" style="margin-bottom:16px">
+            🛡️ As <b>Conquistas</b> são um recurso exclusivo do <b>Plano Ultimate</b>.
+            Atualize para desbloquear medalhas conforme usa o FOXYN e deixar seu perfil mais divertido!
+          </div>
+          <div style="text-align:center;margin-bottom:18px">
+            <a class="fox-btn fox-btn--primary" href="planos.html">Fazer upgrade para Ultimate</a>
+          </div>`;
+      } else {
+        body += `<p class="fox-muted ach-progress-note" style="margin-bottom:16px">
+          🦊 Como membro Ultimate, destrave medals na medida em que usa o FOXYN. Nova conquista = celebração instantânea.
+        </p>`;
+      }
+
+      body += `<div class="ach-grid">` +
+        data.achievements.map((a) => {
+          const lockedCls = a.unlocked ? "" : " locked";
+          const pct = a.progress >= 0 && a.target > 0 ? Math.min(100, Math.round((a.progress / a.target) * 100)) : 0;
+          const progBar = data.ultimate
+            ? `<div class="ach-bar"><span style="width:${pct}%"></span></div>`
+            : `<div class="ach-bar"><span style="width:0%"></span></div>`;
+          const statusBadge = a.unlocked
+            ? '<span class="fox-badge fox-badge--buy">Desbloqueada</span>'
+            : '<span class="fox-badge">Bloqueada</span>';
+          return `
+            <section class="fox-card ach-card${lockedCls}">
+              <div class="ach-ico">${a.icon}</div>
+              <div class="ach-name">${escapeHtml(a.title)}</div>
+              <div class="ach-text">${escapeHtml(a.desc)}</div>
+              <div class="ach-how">💡 ${escapeHtml(a.how)}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem">
+                ${statusBadge}
+                <span class="fox-muted" style="min-width:56px;text-align:right">${data.ultimate ? a.progress + "/" + a.target : "Ultimate"}</span>
+              </div>
+              ${progBar}
+            </section>`;
+        }).join("") + `</div>`;
+
+      body += `<div class="ach-foot">
+        <a class="fox-btn fox-btn--ghost" href="dashboard.html">Voltar ao Dashboard</a>
+      </div>`;
+
+      card.innerHTML = `<div class="fox-card-header"><h3>Minhas conquistas</h3></div><div class="fox-card-body">${body}</div>`;
+    }
+
+    load().catch((e) => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

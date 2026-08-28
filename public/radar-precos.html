@@ -37,6 +37,7 @@
       let data;
       try {
         data = await API.get("/products" + (q ? "?q=" + encodeURIComponent(q) : ""));
+        if (q) foxCheckUnlocks(data);
       } catch (err) {
         if (err.status === 429 && err.data && err.data.error === "limite") {
           grid.innerHTML = `<div class="fox-empty"><div class="fox-empty-art">💎</div><h3>Limite do plano atingido</h3>
@@ -84,7 +85,8 @@
       grid.querySelectorAll(".btn-monitor").forEach((b) =>
         b.addEventListener("click", async () => {
           try {
-            await API.post(`/products/${b.dataset.id}/monitor`, {});
+            const r = await API.post(`/products/${b.dataset.id}/monitor`, {});
+            foxCheckUnlocks(r);
             foxToast(`Monitorando: ${b.dataset.name}`, "success");
           } catch (err) {
             if (err.status === 429) {

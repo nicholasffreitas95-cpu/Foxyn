@@ -14,6 +14,7 @@ import db from "../db.js";
 import { authRequired } from "../auth-middleware.js";
 import { assertLimit } from "../plans.js";
 import { scrapeStores } from "../price-scraper.js";
+import { evaluateAndUnlock } from "../achievements.js";
 
 const router = Router();
 
@@ -101,10 +102,13 @@ router.get("/products", authRequired, async (req, res) => {
   const { q } = req.query;
 
   // Limite de pesquisas (plano  grátis) - aplicado só ao pesquisar
+  let newUnlocks = [];
   if (q) {
     const lim = assertLimit(db, req.user, "price_search");
     if (!lim.ok) return res.status(429).json({ error: "limite", detail: lim });
     db.addEvent(req.user.id, "produto_pesquisado", { q });
+    // Busca é uma ação -> reavalia conquistas (Ultimate)
+    newUnlocks = evaluateAndUnlock(db, req.user);
   }
 
   const source = process.env.PRICE_SOURCE || "lojas";
@@ -125,7 +129,7 @@ router.get("/products", authRequired, async (req, res) => {
           });
           if (!prev || prev.price_cents !== p.priceCents) db.addPricePoint(p.id, p.priceCents);
         });
-        return res.json({ source: "lojas", products });
+        return res.json({ source: "lojas", products, newUnlocks });
       }
     } else if (source === "mercadolivre") {
       products = await fetchMercadoLivre(q);
@@ -140,7 +144,7 @@ router.get("/products", authRequired, async (req, res) => {
           });
           if (!prev || prev.price_cents !== p.priceCents) db.addPricePoint(p.id, p.priceCents);
         });
-        return res.json({ source: "mercadolivre", products });
+        return res.json({ source: "mercadolivre", products, newUnlocks });
       }
     } else if (source === "generic") {
       const ext = await fetchExternal(q);
@@ -152,7 +156,7 @@ router.get("/products", authRequired, async (req, res) => {
             stock: p.stock, trend: p.trend
           });
         });
-        return res.json({ source: "generic", products: ext });
+        return res.json({ source: "generic", products: ext, newUnlocks });
       }
     }
     // fonte real indisponível -> segue pro fallback local
@@ -166,7 +170,7 @@ router.get("/products", authRequired, async (req, res) => {
     const lq = q.toLowerCase();
     products = products.filter((p) => (p.name || "").toLowerCase().includes(lq));
   }
-  return res.json({ source: "local", products });
+  return res.json({ source: "local", products, newUnlocks });
 });
 
 // Histórico de preços (gráficos)
@@ -179,14 +183,15 @@ router.get("/products/:id/history", authRequired, (req, res) => {
 router.post("/products/:id/monitor", authRequired, (req, res) => {
   const { targetCents } = req.body || {};
   const existing = db.listMonitored(req.user.id).find((m) => m.product_id === req.params.id);
-  if (existing) return res.json({ ok: true, monitored: true });
+  if (existing) return res.json({ ok: true, monitored: true, newUnlocks: [] });
 
   const lim = assertLimit(db, req.user, "monitored");
   if (!lim.ok) return res.status(429).json({ error: "limite", detail: lim });
 
   db.addMonitored(req.user.id, req.params.id, targetCents || null);
   db.addEvent(req.user.id, "produto_monitorado", { productId: req.params.id });
-  return res.status(201).json({ ok: true, monitored: true });
+  const newUnlocks = evaluateAndUnlock(db, req.user);
+  return res.status(201).json({ ok: true, monitored: true, newUnlocks });
 });
 
 router.delete("/products/:id/monitor", authRequired, (req, res) => {

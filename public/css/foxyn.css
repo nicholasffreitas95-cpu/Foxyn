@@ -696,3 +696,64 @@ optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
 .diag-body .m { font-size:var(--fox-fs-sm); color:var(--fox-muted); margin-top:3px; }
 
 @keyframes foxFadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+
+/* ============================================================
+   CONQUISTAS (Ultimate)
+   ============================================================ */
+
+/* Celebração (modal de desbloqueio) */
+.fox-ach-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(6,10,18,0.72);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  animation: foxFade 0.18s ease;
+}
+.fox-ach-modal {
+  width: min(420px, 100%);
+  background: var(--fox-surface, #0f1520);
+  border: 1px solid #3a5a2a;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  padding: 28px 24px 24px;
+  text-align: center;
+  animation: foxPop 0.22s ease;
+  position: relative;
+}
+.fox-ach-close {
+  position: absolute; top: 10px; right: 10px;
+  width: 30px; height: 30px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.08); color: #cbd5e1;
+  cursor: pointer; font-size: 1rem;
+}
+.fox-ach-close:hover { background: var(--fox-danger, #ff5c5c); color: #fff; }
+.fox-ach-badge {
+  font-family: var(--fox-font-display, inherit);
+  font-weight: 800; font-size: 1.15rem; color: #fbbf24;
+  margin-bottom: 14px;
+}
+.fox-ach-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; text-align: left; }
+.fox-ach-item { display: flex; gap: 12px; align-items: flex-start; }
+.fox-ach-icon { font-size: 2rem; line-height: 1; }
+.fox-ach-title { font-weight: 700; color: #f1f5f9; }
+.fox-ach-desc { font-size: 0.85rem; color: #94a3b8; margin-top: 2px; }
+
+/* Página de conquistas */
+.ach-hero { text-align: center; margin-bottom: 22px; }
+.ach-hero .ach-count { font-family: var(--fox-font-display, inherit); font-weight: 800; font-size: 2rem; color: var(--fox-orange, #ff8c42); }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.ach-card {
+  background: var(--fox-surface-2, #141b28);
+  border: 1px solid var(--fox-border, #263041);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ach-card.locked { opacity: 0.55; filter: grayscale(0.6); }
+.ach-card .ach-ico { font-size: 2.1rem; line-height: 1; }
+.ach-card .ach-name { font-weight: 700; color: #f1f5f9; }
+.ach-card .ach-text { font-size: 0.85rem; color: #94a3b8; }
+.ach-card .ach-how { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+.ach-bar { height: 6px; border-radius: 999px; background: #263041; margin-top: auto; overflow: hidden; }
+.ach-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--fox-orange, #ff8c42), #fbbf24); border-radius: 999px; }
+.ach-foot { text-align: center; margin-top: 22px; }
+.ach-progress-note { font-size: 0.85rem; color: #94a3b8; }
