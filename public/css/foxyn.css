@@ -1,73 +1,76 @@
 /* ============================================================
-   FOXYN — Design System
+   FOXYN — Design System v2 (Rebrand completo)
    Gaming + Tech + Premium + Futurista
-   Paleta: Deep Black predominante, Fox Orange como destaque
-   Fontes: Manrope (títulos/métricas) + Inter (texto)
+   Paleta (do modelo): Deep Black com subtom azul-profundo + Fox
+   Orange vibrante #FF5400. Fontes: Orbitron (títulos) + Chakra
+   Petch (corpo) = cara de setup gamer high-end.
    ============================================================ */
 
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Chakra+Petch:wght@400;500;600;700&display=swap");
+
 :root {
-  /* Cor */
-  --fox-orange: #ff6a00;
-  --fox-orange-light: #ff8c1a;
-  --fox-orange-soft: rgba(255, 106, 0, 0.12);
-  --fox-orange-glow: rgba(255, 106, 0, 0.35);
-  --fox-black: #080808;
-  --fox-dark: #121212;
-  --fox-panel: #161a1a;
-  --fox-secondary: #1a1e1e;
-  --fox-gray: #a3a3a3;
+  /* Cor principal (accent) - laranja vivo do modelo ~#FC540C */
+  --fox-orange: #ff5400;
+  --fox-orange-light: #ff7a1a;
+  --fox-orange-soft: rgba(255, 84, 0, 0.14);
+  --fox-orange-glow: rgba(255, 84, 0, 0.38);
+  --fox-black: #05060a;
+  --fox-dark: #0b0e14;
+  --fox-panel: #0f131b;
+  --fox-secondary: #12161f;
+  --fox-gray: #a0a8b8;
   --fox-white: #ffffff;
 
   /* Estados */
-  --fox-success: #3ddc84;
-  --fox-success-soft: rgba(61, 220, 132, 0.12);
+  --fox-success: #39e58c;
+  --fox-success-soft: rgba(57, 229, 140, 0.14);
   --fox-warning: #ffc857;
-  --fox-warning-soft: rgba(255, 200, 87, 0.12);
-  --fox-danger: #ff5470;
-  --fox-danger-soft: rgba(255, 84, 112, 0.12);
-  --fox-info: #8be9ff;
-  --fox-info-soft: rgba(139, 233, 255, 0.12);
+  --fox-warning-soft: rgba(255, 200, 87, 0.14);
+  --fox-danger: #ff4d6d;
+  --fox-danger-soft: rgba(255, 77, 109, 0.14);
+  --fox-info: #52d7ff;
+  --fox-info-soft: rgba(82, 215, 255, 0.14);
 
   /* Texto */
   --fox-text: #ffffff;
-  --fox-muted: #a3a3a3;
-  --fox-muted-2: #6b7280;
+  --fox-muted: #a0a7b8;
+  --fox-muted-2: #6d7688;
 
-  /* Superfícies */
-  --fox-bg: #080808;
-  --fox-surface: #161a1a;
-  --fox-surface-2: #1a1e1e;
-  --fox-surface-3: #202626;
+  /* Superfícies (subtom azul-profundo frio) */
+  --fox-bg: #05060a;
+  --fox-surface: #0e121a;
+  --fox-surface-2: #131824;
+  --fox-surface-3: #1a2130;
 
-  /* Bordas */
-  --fox-border: #262b2b;
-  --fox-border-strong: #343b3b;
-  --fox-border-focus: rgba(255, 106, 0, 0.7);
+  /* Bordas (azuladas) */
+  --fox-border: #1e2636;
+  --fox-border-strong: #2b3550;
+  --fox-border-focus: rgba(255, 84, 0, 0.75);
 
-  /* Sombras */
-  --fox-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --fox-shadow-2: 0 6px 24px rgba(0, 0, 0, 0.5);
-  --fox-shadow-3: 0 16px 48px rgba(0, 0, 0, 0.55);
-  --fox-glow: 0 0 0 1px rgba(255, 106, 0, 0.35), 0 8px 40px rgba(255, 106, 0, 0.18);
+  /* Sombras / glow neon */
+  --fox-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --fox-shadow-2: 0 8px 26px rgba(0, 0, 0, 0.55);
+  --fox-shadow-3: 0 18px 52px rgba(0, 0, 0, 0.6);
+  --fox-glow: 0 0 0 1px rgba(255, 84, 0, 0.4), 0 8px 44px rgba(255, 84, 0, 0.2);
 
-  /* Radius */
-  --fox-radius-sm: 8px;
-  --fox-radius-md: 12px;
-  --fox-radius-lg: 16px;
-  --fox-radius-xl: 22px;
+  /* Radius (mais tech/quadradinho, menos "cola") */
+  --fox-radius-sm: 6px;
+  --fox-radius-md: 9px;
+  --fox-radius-lg: 12px;
+  --fox-radius-xl: 16px;
   --fox-radius-pill: 999px;
 
-  /* Tipografia */
-  --fox-font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
-  --fox-font-display: "Manrope", "Segoe UI", sans-serif;
+  /* Tipografia (Orbitron + Chakra Petch) */
+  --fox-font-ui: "Chakra Petch", "Inter", "Segoe UI", system-ui, sans-serif;
+  --fox-font-display: "Orbitron", "Manrope", "Segoe UI", sans-serif;
   --fox-fs-xs: 0.72rem;
-  --fox-fs-sm: 0.82rem;
-  --fox-fs-md: 0.95rem;
-  --fox-fs-lg: 1.1rem;
-  --fox-fs-xl: 1.5rem;
-  --fox-fs-2xl: 2rem;
-  --fox-fs-3xl: 2.6rem;
-  --fox-fs-4xl: 3.4rem;
+  --fox-fs-sm: 0.84rem;
+  --fox-fs-md: 0.98rem;
+  --fox-fs-lg: 1.12rem;
+  --fox-fs-xl: 1.55rem;
+  --fox-fs-2xl: 2.1rem;
+  --fox-fs-3xl: 2.8rem;
+  --fox-fs-4xl: 3.7rem;
 
   /* Espaçamento */
   --fox-space-1: 4px;
@@ -100,8 +103,9 @@ body {
   color: var(--fox-text);
   background-color: var(--fox-bg);
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255, 106, 0, 0.08), transparent),
-    radial-gradient(ellipse 50% 35% at 95% 25%, rgba(255, 106, 0, 0.04), transparent);
+    radial-gradient(ellipse 72% 46% at 50% -8%, rgba(255, 84, 0, 0.1), transparent),
+    radial-gradient(ellipse 50% 36% at 96% 24%, rgba(52, 120, 255, 0.06), transparent),
+    radial-gradient(ellipse 40% 30% at 2% 80%, rgba(255, 84, 0, 0.05), transparent);
   background-attachment: fixed;
   min-height: 100vh;
   overflow-x: hidden;
@@ -113,16 +117,16 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #262b2b;
+  background: #28304a;
   border-radius: var(--fox-radius-pill);
 }
-::-webkit-scrollbar-thumb:hover { background: #343b3b; }
+::-webkit-scrollbar-thumb:hover { background: #3c4670; }
 
 /* ---------- Tipografia ---------- */
 
 .fox-display { font-family: var(--fox-font-display); }
 
-h1, h2, h3, h4 { font-family: var(--fox-font-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
+h1, h2, h3, h4 { font-family: var(--fox-font-display); font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
 h1 { font-size: var(--fox-fs-3xl); }
 h2 { font-size: var(--fox-fs-2xl); }
 h3 { font-size: var(--fox-fs-lg); }
@@ -172,25 +176,36 @@ h3 { font-size: var(--fox-fs-lg); }
   gap: 12px;
   padding: 20px 20px 16px;
   font-family: var(--fox-font-display);
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   text-decoration: none;
   color: var(--fox-text);
   border-bottom: 1px solid var(--fox-border);
 }
 
 .fox-brand .fox-logo-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--fox-orange), var(--fox-orange-light));
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(140deg, var(--fox-orange), #ff2e00);
+  box-shadow: 0 0 18px var(--fox-orange-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  color: #fff;
   flex-shrink: 0;
+  position: relative;
 }
-.fox-brand .mark { color: var(--fox-orange); }
+.fox-brand .fox-logo-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.fox-brand .mark { color: var(--fox-orange); text-shadow: 0 0 14px var(--fox-orange-glow); }
 
 .fox-nav {
   flex: 1;
@@ -329,7 +344,7 @@ h3 { font-size: var(--fox-fs-lg); }
   padding: 22px;
   position: relative;
 }
-.fox-card--accent { border-color: rgba(255, 106, 0, 0.4); }
+.fox-card--accent { border-color: rgba(255, 84, 0, 0.45); }
 .fox-card--interactive { cursor: pointer; transition: transform var(--fox-t-med), border-color var(--fox-t-med), box-shadow var(--fox-t-med); }
 .fox-card--interactive:hover { transform: translateY(-3px); border-color: var(--fox-border-strong); box-shadow: var(--fox-shadow-2); }
 
@@ -356,8 +371,8 @@ h3 { font-size: var(--fox-fs-lg); }
 .fox-badge--buy { color: #b6f5d2; background: var(--fox-success-soft); border-color: rgba(61,220,132,0.4); }
 .fox-badge--wait { color: #ffe08a; background: var(--fox-warning-soft); border-color: rgba(255,200,87,0.4); }
 .fox-badge--high { color: #ffa3b5; background: var(--fox-danger-soft); border-color: rgba(255,84,112,0.4); }
-.fox-badge--perf { color: var(--fox-orange); background: var(--fox-orange-soft); border-color: rgba(255,106,0,0.4); }
-.fox-badge--ult { color: #ffd9a8; background: linear-gradient(135deg, rgba(255,106,0,0.2), rgba(255,138,28,0.2)); border-color: rgba(255,106,0,0.5); }
+.fox-badge--perf { color: var(--fox-orange); background: var(--fox-orange-soft); border-color: rgba(255,84,0,0.42); }
+  .fox-badge--ult { color: #ffd9a8; background: linear-gradient(135deg, rgba(255,84,0,0.22), rgba(255,122,26,0.22)); border-color: rgba(255,84,0,0.5); }
 .fox-badge--fox { color: #8be9ff; background: var(--fox-info-soft); border-color: rgba(139,233,255,0.4); }
 .fox-badge--plan { color: var(--fox-muted); background: var(--fox-surface-2); border-color: var(--fox-border-strong); }
 
@@ -628,7 +643,7 @@ optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
 /* ---------- Login split screen ---------- */
 
 .fox-login-wrap { display: flex; min-height: 100vh; }
-.fox-login-visual { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 40px; background: radial-gradient(ellipse at center, rgba(255,106,0,0.12), transparent 70%); }
+.fox-login-visual { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 40px; background: radial-gradient(ellipse at center, rgba(255,84,0,0.14), transparent 70%); }
 .fox-login-form { width: 460px; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 40px; background: var(--fox-surface); }
 @media (max-width: 860px) {
   .fox-login-visual { display: none; }
