@@ -87,7 +87,8 @@ Abrindo o `.env` (locl) ou as variáveis do Render (produção):
 
 | Variável               | Uso                                                        |
 |------------------------|------------------------------------------------------------|
-| `PRICE_API_URL`        | URL de API real de preços. Se vazia, usa dados locais de demonstração. |
+| `PRICE_SOURCE`         | `lojas` (padrão, gratuito, sem chave) = scraping de **Kabum + Terabyte**; `mercadolivre` = API pública do Mercado Livre; ou `generic`. Controla a fonte real de preços do Radar. |
+| `PRICE_API_URL`        | Usado quando `PRICE_SOURCE=generic`: URL de API de preços que retorna JSON. |
 | `PRICE_API_KEY`        | Chave da API de preços (nunca vai para o frontend).        |
 | `PAYMENT_WEBHOOK_SECRET` | Segredo para validar webhooks do gateway (Stripe/Pix/Mercado Pago). Sem isso, o checkout roda em modo **simulado** (nenhum valor cobrado). |
 | `DATABASE_URL`         | Opcional — URL de um **PostgreSQL** gerenciado para persistência real em produção. Sem isso, o app usa um **arquivo JSON local** (`./data/`, puro JS, sem módulo nativo). |

@@ -47,8 +47,13 @@
         throw err;
       }
 
-      const source = data.source === "external" ? "Fonte: API externa de preços 🟢" : "Fonte: dados de demonstração locais (configure PRICE_API_URL para dados reais)";
-      document.getElementById("sourceNote").textContent = source;
+      const srcMap = {
+        "lojas": "Fonte: Kabum + Terabyte (preços reais) 🟢",
+        "mercadolivre": "Fonte: Mercado Livre (preços reais) 🟢",
+        "generic": "Fonte: API externa de preços 🟢",
+        "local": "Fonte: dados de demonstração locais (lojas indisponíveis)"
+      };
+      document.getElementById("sourceNote").textContent = srcMap[data.source] || "Fonte: " + data.source;
 
       if (!data.products || !data.products.length) {
         grid.innerHTML = `<div class="fox-empty"><div class="fox-empty-art">🔍</div><h3>Nada encontrado</h3></div>`;
@@ -68,7 +73,10 @@
             <p class="fox-muted" style="margin:0 0 12px">
               <span class="fox-badge ${off <= 0 ? "fox-badge--buy" : "fox-badge--high"}">${arrow} ${Math.abs(off).toFixed(1)}%</span> ${stock}
             </p>
-            <button class="fox-btn fox-btn--secondary btn-monitor" data-id="${p.id}" data-name="${escapeHtml(p.name)}">🔔 Monitorar</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${p.permalink ? `<a class="fox-btn fox-btn--ghost" href="${escapeAttr(p.permalink)}" target="_blank" rel="noopener">Ver produto ↗</a>` : ""}
+              <button class="fox-btn fox-btn--secondary btn-monitor" data-id="${escapeAttr(p.id)}" data-name="${escapeHtml(p.name)}">🔔 Monitorar</button>
+            </div>
           </div>
         </section>`;
       }).join("");
@@ -90,6 +98,9 @@
 
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s);
     }
 
     document.getElementById("searchForm").addEventListener("submit", (e) => {
