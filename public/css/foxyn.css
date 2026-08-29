@@ -188,9 +188,14 @@ h3 { font-size: var(--fox-fs-lg); }
 .fox-dashboard-hero-note { position: absolute; z-index: 1; right: 22px; top: 18px; display: flex; align-items: center; gap: 7px; color: var(--fox-muted); font-size: 0.66rem; font-weight: 600; }
 .fox-dashboard-hero-note span { width: 6px; height: 6px; border-radius: 50%; background: var(--fox-success); box-shadow: 0 0 0 3px var(--fox-success-soft); }
 .fox-dashboard-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-.fox-dashboard-metrics .fox-card { min-height: 172px; }
+.fox-dashboard-metrics .fox-card { min-height: 88px; }
 .fox-dashboard-metrics .fox-card-body { font-size: var(--fox-fs-sm); }
 .fox-dashboard-metrics .fox-btn { margin-top: 4px !important; padding-inline: 11px; }
+.fox-metric-card .fox-card-body { display: flex; flex-direction: column; gap: 6px; }
+.fox-metric-kicker { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.09em; color: var(--fox-muted-2); text-transform: uppercase; }
+.fox-metric-value { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.04em; }
+.fox-metric-main { display: flex; align-items: baseline; gap: 4px; }
+.fox-metric-main .fox-metric-value { font-size: 1.65rem; }
 
 /* ============================================================
    SIDEBAR FOXYN
@@ -717,6 +722,22 @@ optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
   .fox-dashboard-metrics .fox-card { min-height: 0; }
 }
 
+/* ---------- Landing header (index) ---------- */
+.fox-landing-header {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  height: 56px; padding: 0 18px;
+  background: rgba(9,9,9,0.96); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--fox-border);
+}
+.fox-landing-header .fox-brand { padding: 0; border: none; font-size: 1.1rem; }
+.fox-landing-nav { display: flex; align-items: center; gap: 18px; flex: 1; justify-content: center; }
+.fox-landing-nav a { color: var(--fox-muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+.fox-landing-nav a:hover { color: var(--fox-text); }
+.fox-landing-header-actions { display: flex; align-items: center; gap: 14px; font-size: 0.78rem; font-weight: 700; color: var(--fox-muted); }
+.fox-landing-premium { color: var(--fox-orange); background: rgba(255,106,0,0.12); border: 1px solid rgba(255,106,0,0.28); padding: 6px 10px; border-radius: 999px; }
+.fox-landing-icon, .fox-landing-avatar { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--fox-border); border-radius: 999px; background: #171717; }
+
 /* ---------- Login / entrada ---------- */
 
 .fox-login-wrap {
@@ -769,6 +790,22 @@ optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
 .fox-login-figure { position: absolute; z-index: 0; right: clamp(24px, 6vw, 100px); bottom: clamp(32px, 7vh, 88px); width: min(38vw, 390px); opacity: 0.95; }
 .fox-login-figure::before { content: ""; position: absolute; inset: 8%; border: 1px solid rgba(255, 106, 0, 0.4); border-radius: 50%; box-shadow: 0 0 0 24px rgba(255, 106, 0, 0.035), 0 0 0 52px rgba(255, 106, 0, 0.025); }
 .fox-login-figure img { position: relative; display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 22px rgba(255, 106, 0, 0.25)); }
+.fox-login-figure--hero { right: 5%; top: 52%; bottom: auto; width: min(34vw, 340px); transform: translateY(-50%); border-radius: 16px; overflow: hidden; }
+.fox-login-figure--hero img { border-radius: 0; object-fit: cover; width: 100%; height: 100%; aspect-ratio: 0.78; object-position: center top; filter: drop-shadow(0 22px 28px rgba(0,0,0,0.65)) drop-shadow(0 0 28px rgba(255,106,0,0.32)); }
+.fox-login-ctas { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.fox-login-stats--landing { gap: 22px; margin-top: 28px; }
+.fox-login-stats--landing .fox-login-stat strong { color: var(--fox-orange); font-size: 0.98rem; }
+.fox-login-minicards { position: absolute; right: 2.5%; top: 14%; z-index: 1; display: flex; flex-direction: column; gap: 10px; width: 188px; }
+.fox-minicard { background: #171717; border: 1px solid var(--fox-border); border-radius: 10px; padding: 10px 11px; box-shadow: var(--fox-shadow-1); }
+.fox-minicard-label { font-size: 0.68rem; line-height: 1.45; color: var(--fox-muted); }
+.fox-minicard-label span { color: var(--fox-text); font-weight: 700; }
+.fox-minicard-label span span { font-weight: 500; color: var(--fox-muted); }
+.fox-minicard-label strong { display: block; color: var(--fox-text); font-size: 0.78rem; }
+.fox-minicard-label em { font-style: normal; color: #ff8c42; font-weight: 700; font-size: 0.66rem; }
+.fox-minicard-label .down { color: var(--fox-danger); }
+.fox-minicard-row { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--fox-muted); margin-top: 6px; }
+.fox-minicard-row span:last-child { color: var(--fox-text); font-weight: 700; }
+.fox-spark { width: 100%; height: 22px; margin-top: 6px; display: block; }
 .fox-login-form { width: min(450px, 35vw); display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: clamp(26px, 3vw, 48px); border: 1px solid var(--fox-border); border-radius: var(--fox-radius-xl); background: #111; }
 .fox-login-form .fox-card { padding: 0; border: none; box-shadow: none; background: transparent; }
 .fox-login-form .fox-card h3 { margin: 4px 0 18px; font-size: 1.05rem; }
@@ -776,13 +813,19 @@ optgroup { color: var(--fox-muted); font-style: normal; font-weight: 600; }
 .fox-auth-heading { margin-bottom: 4px; }
 .fox-auth-heading h2 { font-size: 1.5rem; }
 .fox-auth-heading p { margin-top: 7px; color: var(--fox-muted); font-size: var(--fox-fs-sm); }
+@media (max-width: 1100px) {
+  .fox-landing-nav { display: none; }
+  .fox-login-minicards { display: none; }
+}
 @media (max-width: 860px) {
+  .fox-landing-header { height: 52px; padding: 0 12px; }
   .fox-login-wrap { display: block; padding: 12px; }
   .fox-login-visual { display: none; }
   .fox-login-form { width: 100%; min-height: calc(100vh - 24px); justify-content: flex-start; padding-top: 36px; border-radius: var(--fox-radius-lg); }
   .fox-auth-mobile-brand { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 18px; color: var(--fox-text); font-size: 1.15rem; font-weight: 800; font-style: italic; letter-spacing: -0.07em; text-decoration: none; }
   .fox-auth-mobile-brand img { width: 30px; height: 30px; }
   .fox-auth-mobile-brand span span { color: var(--fox-orange); }
+  .fox-landing-header-actions { gap: 8px; }
 }
 @media (max-width: 460px) {
   .fox-login-form { padding: 24px 18px; }

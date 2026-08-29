@@ -14,32 +14,67 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
 </head>
 <body data-fox-page="index">
+  <header class="fox-landing-header">
+    <a class="fox-brand" href="index.html" aria-label="FOXYN">
+      <span class="fox-logo-mark"><img src="assets/foxyn-mark.svg" alt="" /></span>
+      <span class="fox-brand-wordmark">FOX<span class="mark">YN</span></span>
+    </a>
+    <nav class="fox-landing-nav" aria-label="Principal">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="meu-pc.html">Meu PC</a>
+      <a href="benchmark.html">Benchmark</a>
+      <a href="radar-precos.html">Radar de Preços</a>
+      <a href="planos.html">Upgrades</a>
+      <a href="foxyn-ai.html">Comunidade</a>
+    </nav>
+    <div class="fox-landing-header-actions">
+      <span class="fox-landing-premium">👑 Premium</span>
+      <span class="fox-landing-icon" aria-hidden="true">🔔</span>
+      <span class="fox-landing-avatar" aria-hidden="true">●</span>
+    </div>
+  </header>
+
   <div class="fox-login-wrap">
     <div class="fox-login-visual">
-      <a class="fox-brand fox-login-brand" href="index.html" aria-label="FOXYN">
-        <span class="fox-logo-mark"><img src="assets/foxyn-mark.svg" alt="" /></span>
-        <span class="fox-brand-wordmark">FOX<span class="mark">YN</span></span>
-      </a>
       <div class="fox-login-content">
-        <p class="fox-login-kicker">INTELIGÊNCIA PARA GAMERS</p>
-        <h1 class="fox-display">Seu PC, sua performance. <span class="fox-accent">Nossa inteligência.</span></h1>
+        <h1 class="fox-display">Inteligência<br>para <span class="fox-accent">gamers.</span></h1>
         <p class="fox-login-copy">
-          Benchmarks, análise de hardware e o melhor momento para comprar.
-          Tudo para você decidir melhor cada upgrade.
+          Benchmarks, otimização, hardware e os melhores preços em um só lugar.
         </p>
-        <div class="fox-login-stats" aria-label="Recursos da plataforma">
-          <div class="fox-login-stat"><strong>Benchmark</strong><span>Desempenho real</span></div>
-          <div class="fox-login-stat"><strong>Radar</strong><span>Ofertas monitoradas</span></div>
-          <div class="fox-login-stat"><strong>Upgrade</strong><span>Decisões mais claras</span></div>
+        <div class="fox-login-ctas">
+          <a class="fox-btn fox-btn--primary" href="#auth">Começar agora</a>
+          <a class="fox-btn fox-btn--secondary" href="planos.html">Ver planos</a>
+        </div>
+        <div class="fox-login-stats fox-login-stats--landing" aria-label="Métricas">
+          <div class="fox-login-stat"><strong>120k+</strong><span>Usuários</span></div>
+          <div class="fox-login-stat"><strong>98%</strong><span>Satisfação</span></div>
+          <div class="fox-login-stat"><strong>250k+</strong><span>Produtos</span></div>
+          <div class="fox-login-stat"><strong>50k+</strong><span>Alertas enviados</span></div>
         </div>
       </div>
-      <div class="fox-login-figure" aria-hidden="true"><img src="assets/foxyn-mark.svg" alt="" /></div>
+      <div class="fox-login-figure fox-login-figure--hero" aria-hidden="true">
+        <img src="assets/fox-hero.jpg" alt="" />
+      </div>
+      <div class="fox-login-minicards" aria-hidden="true">
+        <div class="fox-minicard">
+          <div class="fox-minicard-label">PC Score <span>824<span>/1000</span></span> <em>Ótimo</em></div>
+          <div class="fox-progress"><span class="fill" style="width:82%"></span></div>
+        </div>
+        <div class="fox-minicard">
+          <div class="fox-minicard-label">Melhor oferta hoje <strong>RTX 5070</strong> <span>R$ 3.699</span> <span class="down">-7%</span></div>
+          <svg viewBox="0 0 100 22" class="fox-spark"><path d="M2 18 L12 14 L22 16 L34 9 L46 12 L58 5 L74 11 L88 7 L98 12" fill="none" stroke="#ff6a00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="fox-minicard">
+          <div class="fox-minicard-label">Desempenho atual</div>
+          <div class="fox-minicard-row"><span>Temperatura</span><span>52°C</span></div>
+          <div class="fox-minicard-row"><span>FPS médio</span><span>142</span></div>
+        </div>
+      </div>
     </div>
 
-    <section class="fox-login-form">
+    <section class="fox-login-form" id="auth">
       <a class="fox-auth-mobile-brand" href="index.html" aria-label="FOXYN">
         <img src="assets/foxyn-mark.svg" alt="" />
         <span>FOX<span>YN</span></span>
@@ -108,7 +143,6 @@
       t.addEventListener("click", () => showTab(t.dataset.tab))
     );
 
-    // Se já estiver autenticado, vai direto pro dashboard
     if (API.isAuthed()) { window.location.href = "dashboard.html"; }
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
@@ -158,7 +192,6 @@
       }
     });
 
-    // PWA: registra o service worker
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("sw.js").catch(() => {});

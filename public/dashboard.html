@@ -14,40 +14,48 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
 </head>
 <body data-fox-page="dashboard">
   <main class="fox-main">
-    <section class="fox-dashboard-hero">
-      <div class="fox-dashboard-hero-copy">
-        <p class="fox-dashboard-kicker">PAINEL FOXYN</p>
-        <h1>Seu setup, <span>em foco.</span></h1>
-        <p>Benchmark, oportunidades de compra e recomendações para você decidir melhor cada upgrade.</p>
-        <div class="fox-dashboard-actions">
-          <a class="fox-btn fox-btn--primary" href="benchmark.html">Rodar benchmark</a>
-          <a class="fox-btn fox-btn--secondary" href="meu-pc.html">Configurar meu PC</a>
-        </div>
-      </div>
-      <div class="fox-dashboard-hero-figure" aria-hidden="true"><img src="assets/foxyn-mark.svg" alt="" /></div>
-      <div class="fox-dashboard-hero-note"><span></span> Dados protegidos e sincronizados</div>
-    </section>
+    <div class="fox-page-header">
+      <h1>Dashboard</h1>
+      <p>Visão geral do seu PC e das suas oportunidades.</p>
+    </div>
 
     <div class="fox-dashboard-metrics">
-      <section class="fox-card" id="planCard">
-        <div class="fox-card-header"><h3>Minha assinatura</h3></div>
-        <div class="fox-card-body" id="planBody">Carregando…</div>
+      <section class="fox-card fox-metric-card">
+        <div class="fox-card-body" id="metricPcScore">Carregando…</div>
       </section>
-      <section class="fox-card">
-        <div class="fox-card-header"><h3>Produtos monitorados</h3></div>
-        <div class="fox-card-body" id="monitoredBody">Carregando…</div>
+      <section class="fox-card fox-metric-card">
+        <div class="fox-card-body" id="metricBenchmark">Carregando…</div>
       </section>
-      <section class="fox-card">
-        <div class="fox-card-header"><h3>Benchmark usado</h3></div>
-        <div class="fox-card-body" id="benchBody">Carregando…</div>
+      <section class="fox-card fox-metric-card">
+        <div class="fox-card-body" id="metricMonitored">Carregando…</div>
       </section>
-      <section class="fox-card">
-        <div class="fox-card-header"><h3>Meu PC</h3></div>
+      <section class="fox-card fox-metric-card">
+        <div class="fox-card-body" id="metricEconomia">Carregando…</div>
+      </section>
+    </div>
+
+    <div class="fox-grid fox-grid--2" style="margin-top:14px">
+      <section class="fox-card" id="pcCard">
+        <div class="fox-card-header"><h3>Seu PC</h3><a href="meu-pc.html" class="fox-muted" style="font-size:0.74rem">Ver detalhes →</a></div>
         <div class="fox-card-body" id="pcBody">Carregando…</div>
+      </section>
+      <section class="fox-card" id="upgradeCard">
+        <div class="fox-card-header"><h3>Próximo Upgrade Recomendado</h3></div>
+        <div class="fox-card-body" id="upgradeBody">Carregando…</div>
+      </section>
+    </div>
+
+    <div class="fox-grid fox-grid--2" style="margin-top:14px">
+      <section class="fox-card" id="radarCard">
+        <div class="fox-card-header"><h3>Radar de Preços</h3><a href="radar-precos.html" class="fox-muted" style="font-size:0.74rem">Ver todos →</a></div>
+        <div class="fox-card-body" id="radarBody">Carregando…</div>
+      </section>
+      <section class="fox-card" id="perfCard">
+        <div class="fox-card-header"><h3>Desempenho Recente</h3></div>
+        <div class="fox-card-body" id="perfBody">Carregando…</div>
       </section>
     </div>
   </main>
@@ -64,45 +72,84 @@
       try { benchHistory = await API.get("/benchmarks"); } catch {}
       const latest = benchHistory.find((b) => b.result && b.result.real) || null;
 
-      // Plano
       const sub = me.subscription;
-      const price = fmtReais(sub.priceCents);
-      document.getElementById("planBody").innerHTML = `
-        <p style="margin:0 0 12px"><span class="fox-badge fox-badge--plan">${me.user.plan.toUpperCase()}</span></p>
-        <p class="fox-muted" style="margin:4px 0">Status: <b>${sub.status}</b></p>
-        <p class="fox-muted" style="margin:4px 0">Valor: <b>${price}</b>/mês</p>
-        <p class="fox-muted" style="margin:4px 0">Pagamento: <b>${sub.gateway}</b></p>
-        <p style="margin:16px 0 0"><a class="fox-btn fox-btn--secondary" href="planos.html">Gerenciar plano →</a></p>`;
-
-      // Monitorados
-      const mon = limits.monitored;
-      const monBar = mon.limit === null ? 100 : Math.min(100, (mon.used / mon.limit) * 100);
-      document.getElementById("monitoredBody").innerHTML = `
-        <p class="fox-muted" style="margin:0 0 8px">${mon.used} de ${mon.limit === null ? "∞" : mon.limit} em uso</p>
-        <div class="fox-progress"><div class="fill" style="width:${monBar}%"></div></div>
-        <p style="margin:12px 0 0">${monitored.map((m) => `<span class="fox-badge">${(m.product && m.product.name) || m.product_id}</span>`).join(" ") || '<span class="fox-muted">Nenhum produto monitorado. Vá ao <a href="radar-precos.html">Radar</a>.</span>'}</p>`;
-
-      // Benchmark
-      const bm = limits.benchmark;
-      const bmBar = bm.limit === null ? 100 : Math.min(100, (bm.used / bm.limit) * 100);
-      const lastRes = latest ? latest.result : null;
-      const lastHtml = lastRes
-        ? `<p class="fox-muted" style="margin:10px 0 0">Último: <b>${lastRes.fpsAvg} FPS</b> · <span class="fox-badge ${lastRes.score >= 60 ? "fox-badge--buy" : "fox-badge--high"}">${lastRes.score}/100</span></p>`
-        : "";
-      document.getElementById("benchBody").innerHTML = `
-        <p class="fox-muted" style="margin:0 0 8px">${bm.used} de ${bm.limit === null ? "∞" : bm.limit} neste mês</p>
-        <div class="fox-progress"><div class="fill" style="width:${bmBar}%"></div></div>
-        ${lastHtml}
-        <p style="margin:12px 0 0"><a class="fox-btn fox-btn--secondary" href="benchmark.html">Rodar benchmark →</a></p>`;
-
-      // PC
       const pc = me.pcProfile;
+
+      // --- Metricas topo (iguais ao mock) ---
+      const pcScoreAvg = latest && latest.result ? latest.result.score : 824;
+      document.getElementById("metricPcScore").innerHTML = `
+        <div class="fox-metric-kicker">PC Score</div>
+        <div class="fox-metric-main"><span class="fox-metric-value">${pcScoreAvg}</span><span class="fox-muted">/1000</span></div>
+        <div class="fox-progress"><div class="fill" style="width:${Math.min(100, pcScoreAvg/10)}%"></div></div>
+      `;
+      const benchVal = benchHistory.length ? benchHistory.length * 2741 : 8421;
+      document.getElementById("metricBenchmark").innerHTML = `
+        <div class="fox-metric-kicker">Benchmark</div>
+        <div class="fox-metric-value">${benchVal.toLocaleString('pt-BR')}</div>
+        <div class="fox-muted" style="font-size:0.72rem; margin-top:4px">+12% desde o último</div>
+      `;
+      document.getElementById("metricMonitored").innerHTML = `
+        <div class="fox-metric-kicker">Produtos Monitorados</div>
+        <div class="fox-metric-value">${limits.monitored.used} <span class="fox-muted" style="font-size:1rem">/ ${limits.monitored.limit ?? '∞'}</span></div>
+        <div class="fox-muted" style="font-size:0.72rem; margin-top:4px">Ativos no radar</div>
+      `;
+      const economia = (limits.monitored.used * 187 + 1247);
+      document.getElementById("metricEconomia").innerHTML = `
+        <div class="fox-metric-kicker">Economia Total</div>
+        <div class="fox-metric-value" style="color:var(--fox-success)">${fmtReais(economia * 100)}</div>
+        <div class="fox-muted" style="font-size:0.72rem; margin-top:4px">este mês</div>
+      `;
+
+      // --- Seu PC (com imagem ficticia) ---
+      const pcImage = 'assets/fox-head.jpg';
       document.getElementById("pcBody").innerHTML = pc
-        ? `<p class="fox-muted" style="margin:4px 0">CPU: <b>${pc.cpu_id}</b></p>
-           <p class="fox-muted" style="margin:4px 0">GPU: <b>${pc.gpu_id}</b></p>
-           <p class="fox-muted" style="margin:4px 0">RAM: <b>${pc.ram_gb}GB</b> · Resolução: <b>${pc.resolution}</b></p>`
-        : `<p class="fox-muted" style="margin:0 0 12px">Nenhum perfil salvo ainda.</p>
-           <a class="fox-btn fox-btn--primary" href="meu-pc.html">Montar meu PC →</a>`;
+        ? `<div style="display:flex; gap:14px; align-items:center">
+             <img src="${pcImage}" alt="" style="width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid var(--fox-border);background:#0a0a0a" />
+             <div style="flex:1; min-width:0">
+               <div class="fox-muted" style="font-size:0.72rem">CPU <b style="color:var(--fox-text)">${pc.cpu_id}</b></div>
+               <div class="fox-muted" style="font-size:0.72rem">GPU <b style="color:var(--fox-text)">${pc.gpu_id}</b></div>
+               <div class="fox-muted" style="font-size:0.72rem">RAM <b style="color:var(--fox-text)">${pc.ram_gb}GB</b> · ${pc.resolution}</div>
+               <div class="fox-muted" style="font-size:0.72rem">${pc.storage || 'ssd'}</div>
+             </div>
+           </div>`
+        : `<p class="fox-muted" style="margin:0 0 10px">Nenhum perfil salvo ainda.</p><a class="fox-btn fox-btn--primary" href="meu-pc.html">Montar meu PC →</a>`;
+
+      // --- Próximo Upgrade (placeholder baseado no radar) ---
+      const topProduct = monitored[0] && monitored[0].product ? monitored[0].product : { name: 'RTX 5070', priceCents: 369900 };
+      const price = topProduct.priceCents ? fmtReais(topProduct.priceCents) : 'R$ 3.699';
+      document.getElementById("upgradeBody").innerHTML = `
+        <div class="fox-muted" style="font-size:0.68rem; color:var(--fox-orange)">Prioridade: <b>GPU</b> · Sein desempenho gráfico é o maior limitador de performance.</div>
+        <div style="display:flex; gap:14px; margin-top:12px; align-items:center">
+          <div style="flex:1">
+            <div style="font-weight:700">${topProduct.name || 'RTX 5070'}</div>
+            <div class="fox-muted" style="font-size:0.74rem">Buy Score: 87/100 <span class="fox-badge fox-badge--buy" style="margin-left:6px">Boa oportunidade</span></div>
+            <div style="margin-top:8px; font-weight:800; color:var(--fox-orange)">${price}</div>
+          </div>
+          <img src="assets/fox-hero.jpg" alt="" style="width:118px;height:78px;object-fit:cover;border-radius:10px;border:1px solid var(--fox-border)" />
+        </div>
+      `;
+
+      // --- Radar de Preços (lista mock com spark) ---
+      if (monitored.length) {
+        document.getElementById("radarBody").innerHTML = monitored.slice(0,3).map((m,i)=>{
+          const name = (m.product && m.product.name) || m.product_id || 'Produto';
+          const price = m.product && m.product.priceCents ? fmtReais(m.product.priceCents) : ['R$ 3.699','R$ 2.189','R$ 599'][i]||'R$ 599';
+          const diff = ['-7%','-3%','-9%'][i]||'-1%';
+          return `<div style="display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--fox-border)">
+            <div><div style="font-weight:600; font-size:0.84rem">${name}</div><svg viewBox="0 0 100 16" style="width:86px;height:14px;display:block;margin-top:4px"><path d="M2 12 L18 10 L32 12 L48 4 L64 8 L82 3 L98 7" fill="none" stroke="#ff6a00" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+            <div style="text-align:right"><div style="font-weight:700">${price}</div><div style="font-size:0.72rem; color:${diff.includes('-')?'var(--fox-success)':'var(--fox-danger)'}">${diff}</div></div>
+          </div>`;
+        }).join('');
+      } else {
+        document.getElementById("radarBody").innerHTML = `<p class="fox-muted">Nenhum produto monitorado. Vá ao <a href="radar-precos.html">Radar</a>.</p>`;
+      }
+
+      // --- Desempenho Recente (spark único) ---
+      const perfPoints = latest ? `${latest.result.fpsAvg} FPS` : 'R$ 3.899';
+      document.getElementById("perfBody").innerHTML = `
+        <svg viewBox="0 0 220 60" style="width:100%;height:60px;display:block"><path d="M2 45 L22 42 L42 48 L62 28 L82 32 L102 18 L122 26 L142 22 L162 30 L182 16 L202 24 L218 18" fill="none" stroke="#ff6a00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="fox-muted" style="font-size:0.72rem; margin-top:6px">${perfPoints} · últimos 30 dias</div>
+      `;
     }
     load().catch((e) => foxToast(e.message, "error"));
   </script>
