@@ -65,18 +65,30 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+const ICONS = {
+  dashboard: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  pc: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8m-4-5v5"/></svg>',
+  benchmark: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7m4 7V3"/><path d="M2 21h20"/></svg>',
+  radar: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0-9-9"/><path d="M12 17a5 5 0 1 0-5-5"/><path d="M12 13a1 1 0 1 0-1-1"/><path d="m12 12 6-6"/></svg>',
+  alerts: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>',
+  ai: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></svg>',
+  achievements: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="m8 12-2 9 6-3 6 3-2-9"/><path d="m10 8 1.3 1.3L14 6.8"/></svg>',
+  plan: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 3 11h12l3-11-5 4-4-7-4 7-5-4Z"/><path d="M6 21h12"/></svg>',
+  admin: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg>'
+};
+
 const NAV = [
   { section: "Principal" },
-  { href: "dashboard.html", icon: "◎", label: "Dashboard" },
-  { href: "meu-pc.html", icon: "🖥️", label: "Meu PC" },
-  { href: "benchmark.html", icon: "📊", label: "Benchmark" },
+  { href: "dashboard.html", icon: "dashboard", label: "Dashboard" },
+  { href: "meu-pc.html", icon: "pc", label: "Meu PC" },
+  { href: "benchmark.html", icon: "benchmark", label: "Benchmark" },
   { section: "Oportunidades" },
-  { href: "radar-precos.html", icon: "📡", label: "Radar de Preços" },
-  { href: "alertas.html", icon: "🔔", label: "Alertas" },
-  { section: "Foxyn" },
-  { href: "foxyn-ai.html", icon: "🦊", label: "Foxyn AI" },
-  { href: "conquistas.html", icon: "🏅", label: "Conquistas" },
-  { href: "planos.html", icon: "💎", label: "Meu Plano" }
+  { href: "radar-precos.html", icon: "radar", label: "Radar de Preços" },
+  { href: "alertas.html", icon: "alerts", label: "Alertas" },
+  { section: "FOXYN" },
+  { href: "foxyn-ai.html", icon: "ai", label: "Foxyn AI" },
+  { href: "conquistas.html", icon: "achievements", label: "Conquistas" },
+  { href: "planos.html", icon: "plan", label: "Meu Plano" }
 ];
 
 const FOXYN = {
@@ -99,13 +111,14 @@ function renderSidebar(page) {
     if (n.section) nav += `<div class="fox-nav-section">${n.section}</div>`;
     else {
       const active = page && n.href.includes(page) ? " active" : "";
-      nav += `<a href="${n.href}" class="fox-nav-item${active}"><span class="fox-nav-icon">${n.icon}</span> ${n.label}</a>`;
+      nav += `<a href="${n.href}" class="fox-nav-item${active}"><span class="fox-nav-icon">${ICONS[n.icon]}</span><span>${n.label}</span></a>`;
     }
   }
+  const pageLabel = (NAV.find((n) => n.href && n.href.includes(page)) || {}).label || (page === "admin" ? "Painel Admin" : "FOXYN");
 
   document.body.insertAdjacentHTML("afterbegin", `
     <nav id="foxSidebar" class="fox-sidebar">
-      <a href="dashboard.html" class="fox-brand"><span class="fox-logo-mark">🦊</span><span>FOX<span class="mark">YN</span></span></a>
+      <a href="dashboard.html" class="fox-brand"><span class="fox-logo-mark"><img src="assets/foxyn-mark.svg" alt="" /></span><span class="fox-brand-wordmark">FOX<span class="mark">YN</span></span></a>
       <div class="fox-nav">${nav}</div>
       <div class="fox-sidebar-footer">
         <div class="fox-userbox">
@@ -124,8 +137,12 @@ function renderSidebar(page) {
   if (main) {
     main.insertAdjacentHTML("afterbegin", `
       <div class="fox-topbar">
-        <button id="foxSidebarToggle" class="fox-sidebar-toggle" aria-label="Abrir menu">☰</button>
-        <span class="fox-mobile-brand">FOX<span class="mark">YN</span></span>
+        <div class="fox-topbar-context">
+          <button id="foxSidebarToggle" class="fox-sidebar-toggle" aria-label="Abrir menu">☰</button>
+          <span class="fox-mobile-brand">FOX<span class="mark">YN</span></span>
+          <span class="fox-topbar-brand">FOXYN <span class="fox-topbar-divider"></span> <strong>${pageLabel}</strong></span>
+        </div>
+        <div class="fox-topbar-tools"><span class="fox-topbar-status">Sistema online</span></div>
       </div>`);
   }
 
@@ -160,7 +177,7 @@ function renderUser(u) {
     a.href = "admin.html";
     a.id = "adminNavLink";
     a.className = "fox-nav-item";
-    a.innerHTML = '<span class="fox-nav-icon">🛠️</span> Painel Admin';
+    a.innerHTML = `<span class="fox-nav-icon">${ICONS.admin}</span><span>Painel Admin</span>`;
     nav.appendChild(a);
   }
 }

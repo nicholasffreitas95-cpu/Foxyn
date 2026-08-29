@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <defs>
+    <linearGradient id="fox-orange" x1="19" y1="14" x2="76" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9A32"/>
+      <stop offset=".42" stop-color="#FF6A00"/>
+      <stop offset="1" stop-color="#D74700"/>
+    </linearGradient>
+    <linearGradient id="fox-shadow" x1="51" y1="34" x2="66" y2="76" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#35140A" stop-opacity="0"/>
+      <stop offset="1" stop-color="#1A0905" stop-opacity=".75"/>
+    </linearGradient>
+  </defs>
+  <path d="M18 22 36 31 48 17l12 14 18-9-5 34c-2 15-11 25-25 31C34 81 25 71 23 56l-5-34Z" fill="url(#fox-orange)"/>
+  <path d="m22 27 12 8-8 2-4-10Zm52 0-12 8 8 2 4-10Z" fill="#121212"/>
+  <path d="M27 48c5-4 11-5 17-1l4 4-8 8-13-4v-7Zm42 0c-5-4-11-5-17-1l-4 4 8 8 13-4v-7Z" fill="#FFF5EC"/>
+  <path d="m27 48 13 11-13-4v-7Zm42 0L56 59l13-4v-7Z" fill="#DADADA"/>
+  <path d="m33 46 10 2-7 4-5-2 2-4Zm30 0-10 2 7 4 5-2-2-4Z" fill="#121212"/>
+  <path d="m37 48 4 1-4 2-2-1 2-2Zm22 0-4 1 4 2 2-1-2-2Z" fill="#FF9E42"/>
+  <path d="m48 52 8 8-8 8-8-8 8-8Z" fill="#121212"/>
+  <path d="m48 68 12 5-12 8-12-8 12-5Z" fill="#FFF5EC"/>
+  <path d="M48 17v39l25 1c-2 14-11 24-25 30V17Z" fill="url(#fox-shadow)"/>
+  <path d="M30 38c4-4 9-7 18-8" stroke="#FFF5EC" stroke-width="2.4" stroke-linecap="round" opacity=".72"/>
+</svg>

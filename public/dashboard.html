@@ -5,42 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — FOXYN</title>
   <link rel="stylesheet" href="css/foxyn.css" />
-  <meta name="theme-color" content="#ff5400" />
+  <meta name="theme-color" content="#ff6a00" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FOXYN" />
   <meta name="application-name" content="FOXYN" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
 </head>
 <body data-fox-page="dashboard">
   <main class="fox-main">
-    <div class="fox-page-header">
-      <h1>Dashboard</h1>
-      <p>Resumo do seu plano, PC e monitoramentos.</p>
-    </div>
+    <section class="fox-dashboard-hero">
+      <div class="fox-dashboard-hero-copy">
+        <p class="fox-dashboard-kicker">PAINEL FOXYN</p>
+        <h1>Seu setup, <span>em foco.</span></h1>
+        <p>Benchmark, oportunidades de compra e recomendações para você decidir melhor cada upgrade.</p>
+        <div class="fox-dashboard-actions">
+          <a class="fox-btn fox-btn--primary" href="benchmark.html">Rodar benchmark</a>
+          <a class="fox-btn fox-btn--secondary" href="meu-pc.html">Configurar meu PC</a>
+        </div>
+      </div>
+      <div class="fox-dashboard-hero-figure" aria-hidden="true"><img src="assets/foxyn-mark.svg" alt="" /></div>
+      <div class="fox-dashboard-hero-note"><span></span> Dados protegidos e sincronizados</div>
+    </section>
 
-    <div class="fox-grid fox-grid--2">
+    <div class="fox-dashboard-metrics">
       <section class="fox-card" id="planCard">
-        <div class="fox-card-header"><h3>💎 Minha assinatura</h3></div>
+        <div class="fox-card-header"><h3>Minha assinatura</h3></div>
         <div class="fox-card-body" id="planBody">Carregando…</div>
       </section>
       <section class="fox-card">
-        <div class="fox-card-header"><h3>📡 Produtos monitorados</h3></div>
+        <div class="fox-card-header"><h3>Produtos monitorados</h3></div>
         <div class="fox-card-body" id="monitoredBody">Carregando…</div>
       </section>
-    </div>
-
-    <div class="fox-grid fox-grid--2">
       <section class="fox-card">
-        <div class="fox-card-header"><h3>📊 Benchmark usado</h3></div>
+        <div class="fox-card-header"><h3>Benchmark usado</h3></div>
         <div class="fox-card-body" id="benchBody">Carregando…</div>
       </section>
       <section class="fox-card">
-        <div class="fox-card-header"><h3>🖥️ Meu PC</h3></div>
+        <div class="fox-card-header"><h3>Meu PC</h3></div>
         <div class="fox-card-body" id="pcBody">Carregando…</div>
       </section>
     </div>

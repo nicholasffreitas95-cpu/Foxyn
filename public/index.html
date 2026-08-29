@@ -5,33 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FOXYN — O assistente pessoal do gamer</title>
   <link rel="stylesheet" href="css/foxyn.css" />
-  <meta name="theme-color" content="#ff5400" />
+  <meta name="theme-color" content="#ff6a00" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FOXYN" />
   <meta name="application-name" content="FOXYN" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
-  <style>
-    body { background: #0b0f17; color: #e7ecf5; }
-  </style>
 </head>
 <body data-fox-page="index">
   <div class="fox-login-wrap">
     <div class="fox-login-visual">
-      <div class="fox-brand"><span class="fox-logo-mark">🦊</span><span>FOX<span class="mark">YN</span></span></div>
-      <h1 class="fox-display">Seu PC, decifrado.</h1>
-      <p class="fox-muted" style="max-width:460px">
-        Benchmark honesto, radar de preços e recomendações de upgrade
-        — tudo com seus dados protegidos no servidor.
-      </p>
-      <div class="fox-mascot fox-mascot--lg" aria-hidden="true">🦊</div>
+      <a class="fox-brand fox-login-brand" href="index.html" aria-label="FOXYN">
+        <span class="fox-logo-mark"><img src="assets/foxyn-mark.svg" alt="" /></span>
+        <span class="fox-brand-wordmark">FOX<span class="mark">YN</span></span>
+      </a>
+      <div class="fox-login-content">
+        <p class="fox-login-kicker">INTELIGÊNCIA PARA GAMERS</p>
+        <h1 class="fox-display">Seu PC, sua performance. <span class="fox-accent">Nossa inteligência.</span></h1>
+        <p class="fox-login-copy">
+          Benchmarks, análise de hardware e o melhor momento para comprar.
+          Tudo para você decidir melhor cada upgrade.
+        </p>
+        <div class="fox-login-stats" aria-label="Recursos da plataforma">
+          <div class="fox-login-stat"><strong>Benchmark</strong><span>Desempenho real</span></div>
+          <div class="fox-login-stat"><strong>Radar</strong><span>Ofertas monitoradas</span></div>
+          <div class="fox-login-stat"><strong>Upgrade</strong><span>Decisões mais claras</span></div>
+        </div>
+      </div>
+      <div class="fox-login-figure" aria-hidden="true"><img src="assets/foxyn-mark.svg" alt="" /></div>
     </div>
 
-    <div class="fox-login-form">
+    <section class="fox-login-form">
+      <a class="fox-auth-mobile-brand" href="index.html" aria-label="FOXYN">
+        <img src="assets/foxyn-mark.svg" alt="" />
+        <span>FOX<span>YN</span></span>
+      </a>
+      <div class="fox-auth-heading">
+        <p class="fox-login-kicker">ACESSO À PLATAFORMA</p>
+        <h2 id="authHeading">Entre na sua conta</h2>
+        <p id="authSubheading">Continue acompanhando o seu setup.</p>
+      </div>
       <div class="fox-tabs" id="authTabs">
         <button class="fox-tab active" data-tab="login">Entrar</button>
         <button class="fox-tab" data-tab="register">Criar conta</button>
@@ -39,7 +56,7 @@
 
       <!-- LOGIN -->
       <form id="loginForm" class="fox-card">
-        <h3>Bem-vindo de volta 👋</h3>
+        <h3>Bem-vindo de volta</h3>
         <div class="fox-field">
           <label>Usuário</label>
           <input id="loginUser" class="fox-input" autocomplete="username" required />
@@ -54,7 +71,7 @@
 
       <!-- REGISTRO -->
       <form id="registerForm" class="fox-card hidden">
-        <h3>Crie sua conta 🦊</h3>
+        <h3>Crie sua conta</h3>
         <div class="fox-field">
           <label>Nome de usuário</label>
           <input id="regUser" class="fox-input" autocomplete="username" required />
@@ -70,7 +87,7 @@
         <div id="regMsg" class="fox-form-msg"></div>
         <button type="submit" id="regBtn" class="fox-btn fox-btn--primary fox-btn--block">Criar conta grátis</button>
       </form>
-    </div>
+    </section>
   </div>
 
   <script src="js/api.js"></script>
@@ -82,6 +99,10 @@
       );
       document.getElementById("loginForm").classList.toggle("hidden", name !== "login");
       document.getElementById("registerForm").classList.toggle("hidden", name !== "register");
+      document.getElementById("authHeading").textContent = name === "login" ? "Entre na sua conta" : "Crie sua conta";
+      document.getElementById("authSubheading").textContent = name === "login"
+        ? "Continue acompanhando o seu setup."
+        : "Comece a tomar decisões melhores para o seu PC.";
     }
     document.querySelectorAll("#authTabs .fox-tab").forEach((t) =>
       t.addEventListener("click", () => showTab(t.dataset.tab))
