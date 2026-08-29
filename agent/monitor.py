@@ -117,17 +117,26 @@ class MetricsHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
-def run_http():
-    srv = HTTPServer(("localhost", PORT), MetricsHandler)
-    print(f"[FOXYN] HTTP fallback em http://localhost:{PORT}/metrics")
+HTTP_PORT = 8788
+
+def run_http(port=PORT):
+    srv = HTTPServer(("localhost", port), MetricsHandler)
+    print(f"[FOXYN] HTTP em http://localhost:{port}/metrics")
     srv.serve_forever()
 
 if __name__ == "__main__":
     if HAS_WS:
-        asyncio.run(main_ws())
+        # em modo WS, também sobe HTTP em 8788 para fallback de páginas HTTPS (mixed content)
+        t = threading.Thread(target=run_http, args=(HTTP_PORT,), daemon=True)
+        t.start()
+        print(f"[FOXYN] HTTP fallback extra em http://localhost:{HTTP_PORT}/metrics")
+        try:
+            asyncio.run(main_ws())
+        except KeyboardInterrupt:
+            print("\n[FOXYN] encerrado")
     else:
-        # inicia http em thread
-        t = threading.Thread(target=run_http, daemon=True)
+        # sem websockets: apenas HTTP em 8787
+        t = threading.Thread(target=run_http, args=(PORT,), daemon=True)
         t.start()
         print("[FOXYN] aguardando... Ctrl+C para sair")
         try:

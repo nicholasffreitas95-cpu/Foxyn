@@ -129,35 +129,94 @@
       requestAnimationFrame(raf);
     }
 
+    let httpPoll = null;
+    function startHttpPolling(){
+      if (httpPoll) clearInterval(httpPoll);
+      document.getElementById("agentStatus").textContent = "HTTP polling";
+      document.getElementById("agentStatus").className = "fox-badge fox-badge--wait";
+      document.getElementById("agentMsg").textContent = "WebSocket bloqueado (HTTPS → ws). Tentando HTTP polling em localhost:8787/8788...";
+      // tenta 8787 primeiro, depois 8788
+      const urls = ["http://localhost:8787/metrics", "http://localhost:8788/metrics"];
+      let urlIdx = 0;
+      httpPoll = setInterval(async ()=>{
+        const url = urls[urlIdx % urls.length];
+        try{
+          const r = await fetch(url, {cache:"no-store"});
+          if(!r.ok) throw new Error("http "+r.status);
+          const m = await r.json();
+          document.getElementById("agentStatus").textContent = "Conectado (HTTP)";
+          document.getElementById("agentStatus").className = "fox-badge fox-badge--buy";
+          document.getElementById("agentMsg").textContent = "Recebendo via HTTP polling de "+url;
+          renderMetrics(m);
+          // trava no url que funcionou
+          urlIdx = urls.indexOf(url);
+        }catch(e){
+          // alterna url na próxima tentativa
+          urlIdx = (urlIdx+1)%urls.length;
+          if (Date.now() % 4000 < 700) {
+            document.getElementById("agentMsg").textContent = "HTTP polling falhou — verifique agente rodando (netstat -ano | findstr 8787). Voltará à simulação em 8s se não conectar.";
+          }
+        }
+      }, 750);
+      // se após 8s nenhum sucesso, volta à simulação
+      setTimeout(()=>{
+        if(document.getElementById("agentStatus").textContent.includes("HTTP polling")){
+          clearInterval(httpPoll);
+          document.getElementById("agentMsg").textContent = "HTTP polling falhou — agente não responde. Voltando à simulação.";
+          startSimulation();
+        }
+      }, 8000);
+    }
+
     function connectAgent(){
       if (ws) try{ ws.close(); }catch{}
+      if (httpPoll) clearInterval(httpPoll);
       useSim = false;
       if (simInterval) clearInterval(simInterval);
       document.getElementById("agentStatus").textContent = "Conectando…";
       document.getElementById("agentStatus").className = "fox-badge";
+      // detecta se página é HTTPS: ws:// pode ser bloqueado por mixed content → tenta http fallback
+      const isSecure = location.protocol === "https:";
+      let wsUrl = "ws://localhost:8787";
+      // se https, o browser pode bloquear ws://, então já prepara fallback rápido
+      let wsFailed = false;
+      let wsTimer = setTimeout(()=>{
+        if(!ws || ws.readyState !== 1){
+          wsFailed = true;
+          try{ ws.close(); }catch{}
+          startHttpPolling();
+        }
+      }, 1800);
       try{
-        ws = new WebSocket("ws://localhost:8787");
+        ws = new WebSocket(wsUrl);
         ws.onopen = () => {
+          clearTimeout(wsTimer);
+          if(wsFailed) return;
           document.getElementById("agentStatus").textContent = "Conectado";
           document.getElementById("agentStatus").className = "fox-badge fox-badge--buy";
-          document.getElementById("agentMsg").textContent = "Recebendo métricas reais do agente local.";
+          document.getElementById("agentMsg").textContent = "Recebendo métricas reais do agente local via WebSocket.";
         };
         ws.onmessage = (e) => {
           try{ const m = JSON.parse(e.data); renderMetrics(m); }catch{}
         };
         ws.onclose = () => {
+          clearTimeout(wsTimer);
+          if(wsFailed) return;
           document.getElementById("agentStatus").textContent = "Desconectado";
           document.getElementById("agentStatus").className = "fox-badge fox-badge--high";
-          document.getElementById("agentMsg").textContent = "Conexão fechada. Voltando à simulação.";
-          startSimulation();
+          document.getElementById("agentMsg").textContent = "Conexão WebSocket fechada. Tentando HTTP polling...";
+          startHttpPolling();
         };
         ws.onerror = () => {
-          document.getElementById("agentMsg").textContent = "Falha ao conectar em ws://localhost:8787 — verifique se o agent/monitor.py está rodando.";
-          startSimulation();
+          clearTimeout(wsTimer);
+          wsFailed = true;
+          document.getElementById("agentMsg").textContent = "WebSocket falhou (comum em HTTPS). Tentando HTTP polling...";
+          startHttpPolling();
         };
       }catch(err){
+        clearTimeout(wsTimer);
         document.getElementById("agentMsg").textContent = err.message;
-        startSimulation();
+        startHttpPolling();
       }
     }
 
