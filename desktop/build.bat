@@ -6,7 +6,8 @@ if errorlevel 1 (
   python -m pip install --user -r requirements.txt
 )
 echo [FOXYN] Gerando exe com PyInstaller...
-python -m PyInstaller --noconfirm --windowed --name FOXYN --add-data "..\public;public" --icon "..\public\assets\foxyn-mark.svg" app.py
+REM svg nao serve como icone Windows, remova --icon ou gere .ico antes
+python -m PyInstaller --noconfirm --clean --windowed --name FOXYN --add-data "..\public;public" app.py
 echo.
 echo [FOXYN] EXE em desktop\dist\FOXYN\FOXYN.exe  (ou dist\FOXYN.exe se --onefile)
 echo Para instalador, use NSIS ou Inno Setup apontando para dist\FOXYN
