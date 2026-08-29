@@ -53,8 +53,9 @@
         <div class="fox-card-body" id="agentBody">
           <p class="fox-muted" style="margin:0 0 10px">Para dados reais instale o agente FOXYN Monitor (Python) — coleta CPU/GPU/RAM via psutil/GPUtil e serve em <code>ws://localhost:8787</code>. <b>Não cole o código no PowerShell</b>, salve o arquivo.</p>
           <ol class="fox-muted" style="margin:0 0 12px;padding-left:18px;font-size:0.82rem">
-            <li>Baixe <code>monitor.py</code> e salve em uma pasta (ex: <code>C:\FOXYN\agent\</code>)</li>
-            <li>No PowerShell nessa pasta: <code>python monitor.py</code> <span style="font-size:0.72rem">(tente <code>py monitor.py</code> se falhar)</span></li>
+            <li>Baixe <code>monitor.py</code> (+ <code>run.bat</code>) e salve em <code>C:\FOXYN\agent\</code></li>
+            <li>No PowerShell nessa pasta: <code>python monitor.py</code></li>
+            <li>Se der <code>'py' não é reconhecido</code> ou <code>'python' não é reconhecido</code>: reinstale Python marcando <b>Add to PATH</b> ou use <code>winget install Python.Python.3.12</code>, feche/reabra o PowerShell, ou duplo clique em <code>run.bat</code></li>
             <li>Para dados reais: <code>python -m pip install psutil GPUtil websockets</code> depois <code>python monitor.py</code></li>
             <li>Volte aqui e clique em <b>Conectar</b></li>
           </ol>

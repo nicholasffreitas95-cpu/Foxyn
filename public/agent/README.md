@@ -13,7 +13,11 @@ Coleta CPU / GPU / RAM e serve para `public/monitor.html` em `ws://localhost:878
    ```
    python monitor.py
    ```
-   Se `python` não funcionar, tente `py monitor.py` ou `python3 monitor.py`.
+   Se der `'py' não é reconhecido` ou `'python' não é reconhecido`:
+   - digite `where python` e `where py` para ver se está no PATH
+   - se nada aparecer, reinstale Python marcando **Add python.exe to PATH** ou rode `winget install Python.Python.3.12` e **feche/reabra** o PowerShell
+   - alternativa: duplo clique em `run.bat` (tenta `python` → `py` → `python3` automaticamente)
+   - caminho completo também funciona: `C:\Users\SEU_NOME\AppData\Local\Programs\Python\Python312\python.exe monitor.py`
 5. Sem dependências já funciona em modo simulado. Para dados reais:
    ```
    python -m pip install psutil GPUtil websockets
