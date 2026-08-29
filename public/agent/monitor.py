@@ -104,15 +104,25 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
 class MetricsHandler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
+        self.end_headers()
     def do_GET(self):
         if self.path == "/metrics":
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Private-Network", "true")
             self.end_headers()
             self.wfile.write(json.dumps(sample()).encode())
         else:
             self.send_response(404)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Private-Network", "true")
             self.end_headers()
     def log_message(self, fmt, *args):
         pass
