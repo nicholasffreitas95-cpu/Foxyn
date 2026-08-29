@@ -56,6 +56,10 @@ app.get("/api/health", (_req, res) => res.json({ ok: true, service: "foxyn" }));
 
 // ---------- Frontend estático ----------
 const publicDir = path.join(__dirname, "..", "public");
+const agentDir = path.join(__dirname, "..", "agent");
+
+// Expõe agente de monitoramento para download direto (/agent/monitor.py)
+app.use("/agent", express.static(agentDir, { etag: true, maxAge: "1h" }));
 
 // Service worker: sempre no-cache para permitir atualizações do PWA
 app.get("/sw.js", (_req, res) => {
