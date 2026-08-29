@@ -115,6 +115,7 @@ function renderSidebar(page) {
             <div id="foxUserPlan" class="fox-user-plan">—</div>
           </div>
         </div>
+        <button id="foxInstallBtn" class="fox-btn fox-btn--secondary fox-btn--block fox-install-btn hidden">📲 Instalar app</button>
       </div>
     </nav>
     <div id="foxOverlay" class="fox-overlay"></div>`);
@@ -164,8 +165,45 @@ function renderUser(u) {
   }
 }
 
+// ---------- PWA: service worker + instalação ----------
+let deferredPrompt = null;
+
+function setupPWA() {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+
+  const installBtn = document.getElementById("foxInstallBtn");
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.classList.remove("hidden");
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice.catch(() => null);
+      if (choice && choice.outcome === "accepted") {
+        foxToast("App instalado! 🦊", "success");
+        installBtn.classList.add("hidden");
+      }
+      deferredPrompt = null;
+    });
+
+    // Oculta se já estiver instalado (modo standalone)
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      installBtn.classList.add("hidden");
+    }
+  }
+}
+
 async function initApp(page) {
   renderSidebar(page);
+  setupPWA();
   const u = API.user();
   renderUser(u);
   if (API.isAuthed()) {

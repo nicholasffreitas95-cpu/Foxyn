@@ -240,6 +240,9 @@ h3 { font-size: var(--fox-fs-lg); }
 
 .fox-sidebar-footer { padding: 14px; border-top: 1px solid var(--fox-border); }
 
+.fox-install-btn { margin-top: 12px; font-weight: 600; }
+.fox-install-btn.hidden { display: none; }
+
 .fox-userbox {
   display: flex;
   align-items: center;

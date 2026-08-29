@@ -56,6 +56,13 @@ app.get("/api/health", (_req, res) => res.json({ ok: true, service: "foxyn" }));
 
 // ---------- Frontend estático ----------
 const publicDir = path.join(__dirname, "..", "public");
+
+// Service worker: sempre no-cache para permitir atualizações do PWA
+app.get("/sw.js", (_req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(publicDir, "sw.js"));
+});
+
 app.use(express.static(publicDir, { etag: true, maxAge: "1h" }));
 
 // SPA fallback (serve index.html para rotas não encontradas)
