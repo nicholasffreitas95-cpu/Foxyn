@@ -51,16 +51,18 @@
       <section class="fox-card">
         <div class="fox-card-header"><h3>Agente local</h3><span id="agentStatus" class="fox-badge fox-badge--high">Desconectado</span></div>
         <div class="fox-card-body" id="agentBody">
-          <p class="fox-muted" style="margin:0 0 10px">Para dados reais instale o agente FOXYN Monitor (Python) — coleta CPU/GPU/RAM via psutil/GPUtil e serve em <code>ws://localhost:8787</code>.</p>
+          <p class="fox-muted" style="margin:0 0 10px">Para dados reais instale o agente FOXYN Monitor (Python) — coleta CPU/GPU/RAM via psutil/GPUtil e serve em <code>ws://localhost:8787</code>. <b>Não cole o código no PowerShell</b>, salve o arquivo.</p>
           <ol class="fox-muted" style="margin:0 0 12px;padding-left:18px;font-size:0.82rem">
-            <li><code>pip install psutil GPUtil websocket-server</code></li>
-            <li><code>python agent/monitor.py</code></li>
+            <li>Baixe <code>monitor.py</code> e salve em uma pasta (ex: <code>C:\FOXYN\agent\</code>)</li>
+            <li>No PowerShell nessa pasta: <code>python monitor.py</code> <span style="font-size:0.72rem">(tente <code>py monitor.py</code> se falhar)</span></li>
+            <li>Para dados reais: <code>python -m pip install psutil GPUtil websockets</code> depois <code>python monitor.py</code></li>
             <li>Volte aqui e clique em <b>Conectar</b></li>
           </ol>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button id="btnConnect" class="fox-btn fox-btn--primary">Conectar ao agente</button>
             <button id="btnSimulate" class="fox-btn fox-btn--secondary">Modo simulação</button>
-            <a class="fox-btn fox-btn--ghost" href="agent/monitor.py" download>Baixar agente</a>
+            <a class="fox-btn fox-btn--ghost" href="agent/monitor.py" download>Baixar agente (.py)</a>
+            <a class="fox-btn fox-btn--ghost" href="agent/run.bat" download>Baixar run.bat</a>
           </div>
           <p id="agentMsg" class="fox-muted" style="font-size:0.74rem;margin-top:10px"></p>
         </div>
