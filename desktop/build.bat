@@ -20,8 +20,18 @@ if %errorlevel%==0 (
   echo Tentando mesmo assim...
 )
 echo [FOXYN] Gerando exe com PyInstaller...
-REM svg nao serve como icone Windows, remova --icon ou gere .ico antes
-%PY% -m PyInstaller --noconfirm --clean --windowed --name FOXYN --add-data "..\public;public" app.py
+if exist foxyn.ico (
+  %PY% -m PyInstaller --noconfirm --clean --windowed --name FOXYN --icon foxyn.ico --add-data "..\public;public" app.py
+) else (
+  %PY% -m PyInstaller --noconfirm --clean --windowed --name FOXYN --add-data "..\public;public" app.py
+)
+if exist "C:\Program Files (x86)\NSIS\makensis.exe" (
+  echo [FOXYN] Gerando instalador NSIS...
+  "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+  echo Instalador em FOXYN-Installer.exe
+) else (
+  echo [FOXYN] NSIS nao encontrado - instale em https://nsis.sourceforge.io ou use FOXYN_portable.bat
+)
 echo.
 echo [FOXYN] EXE em desktop\dist\FOXYN\FOXYN.exe  (ou dist\FOXYN.exe se --onefile)
 echo Para instalador, use NSIS ou Inno Setup apontando para dist\FOXYN
