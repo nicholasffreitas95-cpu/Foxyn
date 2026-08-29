@@ -5,7 +5,7 @@
    - /api/* -> network-only (dados autenticados e dinamicos)
    ============================================================ */
 
-const VERSION = "foxyn-v3";
+const VERSION = "foxyn-v4";
 const SHELL_CACHE = VERSION + "-shell";
 
 const SHELL = [
@@ -14,6 +14,8 @@ const SHELL = [
   "/dashboard.html",
   "/meu-pc.html",
   "/benchmark.html",
+  "/simulador.html",
+  "/monitor.html",
   "/radar-precos.html",
   "/alertas.html",
   "/foxyn-ai.html",
@@ -27,6 +29,7 @@ const SHELL = [
   "/js/api.js",
   "/js/app.js",
   "/js/benchmark-webgl.js",
+  "/js/simulador-data.js",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",

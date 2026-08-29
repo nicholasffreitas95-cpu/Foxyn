@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitor — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+  <meta name="theme-color" content="#ff6a00" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FOXYN" />
+  <meta name="application-name" content="FOXYN" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    .fox-monitor-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:14px; }
+    .fox-monitor-value { font-size:1.6rem; font-weight:800; letter-spacing:-0.04em; }
+    .fox-overlay-preview { position:relative; height:180px; background:#0a0a0a; border:1px solid var(--fox-border); border-radius:12px; overflow:hidden; }
+    .fox-overlay-preview .hud { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.72); border:1px solid rgba(255,106,0,0.45); border-radius:8px; padding:8px 10px; font-size:0.72rem; line-height:1.5; }
+    @media(max-width:960px){ .fox-monitor-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:640px){ .fox-monitor-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body data-fox-page="monitor">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>Monitor</h1>
+      <p>Overlay leve estilo Afterburner — métricas em tempo real. No navegador é simulação; com o agente local vira dados reais.</p>
+    </div>
+
+    <div class="fox-monitor-grid">
+      <section class="fox-card"><div class="fox-card-header"><h3>CPU</h3><span id="cpuBadge" class="fox-badge">—</span></div><div class="fox-card-body"><div id="cpuVal" class="fox-monitor-value">—</div><div class="fox-progress" style="margin-top:10px"><div id="cpuBar" class="fill" style="width:0%"></div></div><div id="cpuTemp" class="fox-muted" style="font-size:0.74rem;margin-top:6px">Temp —</div></div></section>
+      <section class="fox-card"><div class="fox-card-header"><h3>GPU</h3><span id="gpuBadge" class="fox-badge">—</span></div><div class="fox-card-body"><div id="gpuVal" class="fox-monitor-value">—</div><div class="fox-progress" style="margin-top:10px"><div id="gpuBar" class="fill" style="width:0%"></div></div><div id="gpuTemp" class="fox-muted" style="font-size:0.74rem;margin-top:6px">Temp —</div></div></section>
+      <section class="fox-card"><div class="fox-card-header"><h3>RAM</h3><span id="ramBadge" class="fox-badge">—</span></div><div class="fox-card-body"><div id="ramVal" class="fox-monitor-value">—</div><div class="fox-progress" style="margin-top:10px"><div id="ramBar" class="fill" style="width:0%"></div></div><div id="ramUsed" class="fox-muted" style="font-size:0.74rem;margin-top:6px">—</div></div></section>
+      <section class="fox-card"><div class="fox-card-header"><h3>FPS</h3><span id="fpsBadge" class="fox-badge fox-badge--buy">—</span></div><div class="fox-card-body"><div id="fpsVal" class="fox-monitor-value">—</div><canvas id="fpsSpark" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas><div class="fox-muted" style="font-size:0.72rem;margin-top:4px">Estimativa via rAF · sem agente = simulado</div></div></section>
+    </div>
+
+    <div class="fox-grid fox-grid--2" style="margin-top:14px">
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Overlay preview</h3><span class="fox-badge">HUD</span></div>
+        <div class="fox-card-body">
+          <div class="fox-overlay-preview" id="overlayPreview">
+            <div class="hud" id="hudBox">FOXYN · CPU 0% · GPU 0% · RAM 0% · FPS 0</div>
+            <div style="position:absolute;right:10px;bottom:10px;background:rgba(255,106,0,0.14);border:1px solid rgba(255,106,0,0.4);border-radius:999px;padding:4px 8px;font-size:0.68rem">Preview</div>
+          </div>
+          <p class="fox-muted" style="font-size:0.72rem;margin-top:8px">O agente desktop desenha este HUD por cima do jogo (borderless topmost). No navegador é apenas prévia.</p>
+        </div>
+      </section>
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Agente local</h3><span id="agentStatus" class="fox-badge fox-badge--high">Desconectado</span></div>
+        <div class="fox-card-body" id="agentBody">
+          <p class="fox-muted" style="margin:0 0 10px">Para dados reais instale o agente FOXYN Monitor (Python) — coleta CPU/GPU/RAM via psutil/GPUtil e serve em <code>ws://localhost:8787</code>.</p>
+          <ol class="fox-muted" style="margin:0 0 12px;padding-left:18px;font-size:0.82rem">
+            <li><code>pip install psutil GPUtil websocket-server</code></li>
+            <li><code>python agent/monitor.py</code></li>
+            <li>Volte aqui e clique em <b>Conectar</b></li>
+          </ol>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="btnConnect" class="fox-btn fox-btn--primary">Conectar ao agente</button>
+            <button id="btnSimulate" class="fox-btn fox-btn--secondary">Modo simulação</button>
+            <a class="fox-btn fox-btn--ghost" href="agent/monitor.py" download>Baixar agente</a>
+          </div>
+          <p id="agentMsg" class="fox-muted" style="font-size:0.74rem;margin-top:10px"></p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let ws = null;
+    let simInterval = null;
+    let fpsHistory = Array(40).fill(60);
+    let useSim = true;
+
+    function setBar(id, pct) { document.getElementById(id).style.width = Math.max(0, Math.min(100, pct)) + "%"; }
+    function updateHUD(cpu,gpu,ram,fps){ document.getElementById("hudBox").textContent = `FOXYN · CPU ${cpu}% · GPU ${gpu}% · RAM ${ram}% · FPS ${fps}`; }
+
+    function renderMetrics(m){
+      const cpu = Math.round(m.cpu ?? 0), gpu = Math.round(m.gpu ?? 0), ram = Math.round(m.ram ?? 0), fps = Math.round(m.fps ?? 0);
+      document.getElementById("cpuVal").textContent = cpu + "%";
+      document.getElementById("gpuVal").textContent = gpu + "%";
+      document.getElementById("ramVal").textContent = ram + "%";
+      document.getElementById("fpsVal").textContent = fps;
+      setBar("cpuBar", cpu); setBar("gpuBar", gpu); setBar("ramBar", ram);
+      document.getElementById("cpuTemp").textContent = "Temp " + (m.cpuTemp ?? 58) + "°C";
+      document.getElementById("gpuTemp").textContent = "Temp " + (m.gpuTemp ?? 62) + "°C";
+      document.getElementById("ramUsed").textContent = (m.ramUsed ?? "8.2") + " GB em uso";
+      document.getElementById("cpuBadge").textContent = cpu > 85 ? "Alto" : cpu > 60 ? "Médio" : "OK";
+      document.getElementById("gpuBadge").textContent = gpu > 85 ? "Alto" : gpu > 60 ? "Médio" : "OK";
+      document.getElementById("ramBadge").textContent = ram > 85 ? "Cheia" : "OK";
+      document.getElementById("fpsBadge").textContent = fps >= 90 ? "Alto" : fps >= 55 ? "OK" : "Baixo";
+      updateHUD(cpu,gpu,ram,fps);
+      // spark
+      fpsHistory.push(fps); fpsHistory.shift();
+      const c = document.getElementById("fpsSpark"), ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.strokeStyle = "#ff6a00"; ctx.lineWidth = 1.6; ctx.beginPath();
+      fpsHistory.forEach((v,i)=>{ const x = i/(fpsHistory.length-1)*c.width; const y = c.height - (v/140)*c.height; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+      ctx.stroke();
+    }
+
+    function startSimulation(){
+      useSim = true;
+      if (simInterval) clearInterval(simInterval);
+      document.getElementById("agentStatus").textContent = "Simulação";
+      document.getElementById("agentStatus").className = "fox-badge fox-badge--wait";
+      document.getElementById("agentMsg").textContent = "Gerando métricas sintéticas (rAF + ruído). Conecte o agente para dados reais.";
+      let t = 0;
+      simInterval = setInterval(()=>{
+        t += 0.22;
+        const base = 62 + Math.sin(t)*18 + Math.random()*8;
+        renderMetrics({
+          cpu: 38 + Math.sin(t*0.9)*18 + Math.random()*6,
+          gpu: 55 + Math.cos(t*0.7)*14 + Math.random()*7,
+          ram: 48 + Math.sin(t*0.4)*6 + Math.random()*3,
+          fps: base, cpuTemp: 56 + Math.round(Math.sin(t)*4), gpuTemp: 61 + Math.round(Math.cos(t)*5), ramUsed: (7.8 + Math.sin(t*0.3)*0.6).toFixed(1)
+        });
+      }, 650);
+      // FPS via rAF para parecer mais real
+      let last = performance.now(), frames = 0;
+      function raf(now){ frames++; if(now-last>1000){ fpsHistory[fpsHistory.length-1]= Math.round(frames*1000/(now-last)); last=now; frames=0; } if(useSim) requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+
+    function connectAgent(){
+      if (ws) try{ ws.close(); }catch{}
+      useSim = false;
+      if (simInterval) clearInterval(simInterval);
+      document.getElementById("agentStatus").textContent = "Conectando…";
+      document.getElementById("agentStatus").className = "fox-badge";
+      try{
+        ws = new WebSocket("ws://localhost:8787");
+        ws.onopen = () => {
+          document.getElementById("agentStatus").textContent = "Conectado";
+          document.getElementById("agentStatus").className = "fox-badge fox-badge--buy";
+          document.getElementById("agentMsg").textContent = "Recebendo métricas reais do agente local.";
+        };
+        ws.onmessage = (e) => {
+          try{ const m = JSON.parse(e.data); renderMetrics(m); }catch{}
+        };
+        ws.onclose = () => {
+          document.getElementById("agentStatus").textContent = "Desconectado";
+          document.getElementById("agentStatus").className = "fox-badge fox-badge--high";
+          document.getElementById("agentMsg").textContent = "Conexão fechada. Voltando à simulação.";
+          startSimulation();
+        };
+        ws.onerror = () => {
+          document.getElementById("agentMsg").textContent = "Falha ao conectar em ws://localhost:8787 — verifique se o agent/monitor.py está rodando.";
+          startSimulation();
+        };
+      }catch(err){
+        document.getElementById("agentMsg").textContent = err.message;
+        startSimulation();
+      }
+    }
+
+    document.getElementById("btnConnect").addEventListener("click", connectAgent);
+    document.getElementById("btnSimulate").addEventListener("click", startSimulation);
+
+    (async()=>{ await initApp("monitor"); startSimulation(); })().catch(e=>foxToast(e.message,"error"));
+  </script>
+</body>
+</html>

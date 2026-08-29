@@ -65,9 +65,11 @@ app.get("/sw.js", (_req, res) => {
 
 app.use(express.static(publicDir, { etag: true, maxAge: "1h" }));
 
-// SPA fallback (serve index.html para rotas não encontradas)
+// SPA fallback (serve index.html para rotas não encontradas) - evita mascarar 404 de assets
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api")) return next();
+  // se parece arquivo com extensão (ex: .js, .css, .png, .jpg, .svg) não faz fallback, deixa 404 real
+  if (req.path.includes(".") && !req.path.endsWith(".html")) return res.status(404).send("Not found");
   const index = path.join(publicDir, "index.html");
   if (fs.existsSync(index)) return res.sendFile(index);
   return next();

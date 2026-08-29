@@ -40,14 +40,21 @@ function load() {
   }
 }
 
+let _writing = false;
+let _queued = false;
 function save(data) {
-  const dir = path.dirname(file);
-  const tmp = file + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
-  fs.renameSync(tmp, file);
+  if (_writing) { _queued = true; return; }
+  _writing = true;
+  try {
+    const tmp = file + ".tmp";
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
+    fs.renameSync(tmp, file);
+  } finally {
+    _writing = false;
+    if (_queued) { _queued = false; save(data); }
+  }
 }
 
-// Controle de corrida simples (síncrono por natureza no Node single-thread)
 let current = load();
 
 const db = {

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador — FOXYN</title>
+  <link rel="stylesheet" href="css/foxyn.css" />
+  <meta name="theme-color" content="#ff6a00" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FOXYN" />
+  <meta name="application-name" content="FOXYN" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="assets/foxyn-mark.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body data-fox-page="simulador">
+  <main class="fox-main">
+    <div class="fox-page-header">
+      <h1>Simulador de Jogos</h1>
+      <p>Escolha sua configuração e veja a estimativa de desempenho por jogo — cálculo local, sem envio de dados.</p>
+    </div>
+
+    <div class="fox-grid fox-grid--2">
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Configuração</h3></div>
+        <div class="fox-card-body">
+          <div class="fox-field">
+            <label for="simGpu">Placa de vídeo (GPU)</label>
+            <select id="simGpu" class="fox-select"></select>
+          </div>
+          <div class="fox-field">
+            <label for="simCpu">Processador (CPU)</label>
+            <select id="simCpu" class="fox-select"></select>
+          </div>
+          <div class="fox-grid fox-grid--2">
+            <div class="fox-field">
+              <label for="simRam">Memória RAM</label>
+              <select id="simRam" class="fox-select"></select>
+            </div>
+            <div class="fox-field">
+              <label for="simRes">Resolução</label>
+              <select id="simRes" class="fox-select"></select>
+            </div>
+          </div>
+          <div class="fox-field">
+            <label for="simGame">Jogo</label>
+            <select id="simGame" class="fox-select"></select>
+          </div>
+          <button id="btnSimular" class="fox-btn fox-btn--primary fox-btn--block" style="margin-top:8px">Calcular desempenho</button>
+          <p class="fox-muted" style="font-size:0.74rem;margin-top:10px">Estimativa sintética baseada em tier de GPU, fator de CPU/RAM e peso do jogo. Use como guia, não como benchmark real.</p>
+        </div>
+      </section>
+
+      <section class="fox-card">
+        <div class="fox-card-header"><h3>Resultado</h3><span id="simVerdict" class="fox-badge">—</span></div>
+        <div class="fox-card-body" id="simResult">
+          <div class="fox-empty" style="padding:28px 12px"><div class="fox-empty-art">🎮</div><h3>Selecione e calcule</h3><p class="fox-muted">O FPS estimado aparecerá aqui.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="fox-card" style="margin-top:14px">
+      <div class="fox-card-header"><h3>Comparativo rápido (mesma config)</h3></div>
+      <div class="fox-card-body" id="simCompare">Carregando…</div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/simulador-data.js"></script>
+  <script>
+    function fillSelect(id, items, getLabel) {
+      const el = document.getElementById(id);
+      el.innerHTML = items.map(i => `<option value="${i.id}">${getLabel(i)}</option>`).join("");
+    }
+    fillSelect("simGpu", SIM_DATA.gpus, g => g.label);
+    fillSelect("simCpu", SIM_DATA.cpus, c => c.label);
+    fillSelect("simRam", SIM_DATA.ram, r => r.label);
+    fillSelect("simRes", SIM_DATA.resolutions, r => r.label);
+    fillSelect("simGame", SIM_DATA.games, g => g.label);
+
+    // prefira perfil salvo se existir
+    async function preloadProfile() {
+      try {
+        const me = await API.get("/auth/me");
+        const p = me.pcProfile;
+        if (!p) return;
+        const gpuMatch = SIM_DATA.gpus.find(g => p.gpu_id && g.label.toLowerCase().includes(p.gpu_id.toLowerCase().split(" ")[0]));
+        if (gpuMatch) document.getElementById("simGpu").value = gpuMatch.id;
+        const cpuMatch = SIM_DATA.cpus.find(c => p.cpu_id && c.label.toLowerCase().includes(p.cpu_id.toLowerCase().split(" ")[0]));
+        if (cpuMatch) document.getElementById("simCpu").value = cpuMatch.id;
+        if (p.ram_gb) {
+          const ramOpt = SIM_DATA.ram.find(r => r.id === Number(p.ram_gb));
+          if (ramOpt) document.getElementById("simRam").value = String(ramOpt.id);
+        }
+        if (p.resolution) document.getElementById("simRes").value = p.resolution;
+      } catch {}
+    }
+
+    function renderResult() {
+      const cfg = {
+        gpuId: document.getElementById("simGpu").value,
+        cpuId: document.getElementById("simCpu").value,
+        ramGB: Number(document.getElementById("simRam").value),
+        resolution: document.getElementById("simRes").value,
+        gameId: document.getElementById("simGame").value
+      };
+      const r = estimateFPS(cfg);
+      const game = SIM_DATA.games.find(g => g.id === cfg.gameId);
+      document.getElementById("simVerdict").textContent = r.verdict;
+      document.getElementById("simVerdict").className = "fox-badge fox-badge--" + (r.cls === "good" ? "buy" : r.cls === "warn" ? "wait" : "high");
+      document.getElementById("simResult").innerHTML = `
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div class="fox-score fox-score--${r.cls}">
+            <div class="fox-score-ring"><svg width="84" height="84" viewBox="0 0 84 84"><circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="7"/><circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="7" stroke-dasharray="${2*Math.PI*36}" stroke-dashoffset="${2*Math.PI*36*(1 - Math.min(100, r.fps)/140)}" /></svg><span class="num">${r.fps}</span></div>
+            <span class="fox-score-label">FPS médio estimado</span>
+            <span class="fox-score-verdict">${r.verdict} · ${r.settings}</span>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <p class="fox-muted" style="margin:0">Jogo: <b style="color:var(--fox-text)">${game.label}</b></p>
+            <p class="fox-muted" style="margin:6px 0 0">Mín (1% low): <b>${r.min} FPS</b> · Máx: <b>${r.max} FPS</b></p>
+            <div class="fox-progress" style="margin-top:12px"><div class="fill" style="width:${Math.min(100, r.fps/1.4)}%"></div></div>
+            <p class="fox-muted" style="font-size:0.72rem;margin-top:6px">Em ${cfg.resolution} · ${SIM_DATA.gpus.find(g=>g.id===cfg.gpuId).label} + ${SIM_DATA.cpus.find(c=>c.id===cfg.cpuId).label}</p>
+          </div>
+        </div>
+      `;
+      // comparativo
+      const rows = SIM_DATA.games.slice(0,6).map(g => {
+        const rr = estimateFPS({ ...cfg, gameId: g.id });
+        return `<tr><td>${g.label}</td><td><b>${rr.fps} FPS</b></td><td><span class="fox-badge fox-badge--${rr.cls==="good"?"buy":rr.cls==="warn"?"wait":"high"}">${rr.verdict}</span></td><td>${rr.settings}</td></tr>`;
+      }).join("");
+      document.getElementById("simCompare").innerHTML = `<div class="fox-table-wrap"><table class="fox-table"><thead><tr><th>Jogo</th><th>FPS est.</th><th>Status</th><th>Preset sugerido</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    document.getElementById("btnSimular").addEventListener("click", renderResult);
+    // auto ao trocar jogo
+    document.getElementById("simGame").addEventListener("change", () => {
+      if (document.getElementById("simResult").textContent.includes("FPS")) renderResult();
+    });
+
+    (async () => {
+      await initApp("simulador");
+      await preloadProfile();
+      document.getElementById("simCompare").innerHTML = '<span class="fox-muted">Clique em Calcular para ver o comparativo.</span>';
+    })().catch(e => foxToast(e.message, "error"));
+  </script>
+</body>
+</html>

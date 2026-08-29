@@ -74,6 +74,8 @@ const ICONS = {
   ai: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></svg>',
   achievements: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="m8 12-2 9 6-3 6 3-2-9"/><path d="m10 8 1.3 1.3L14 6.8"/></svg>',
   plan: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 3 11h12l3-11-5 4-4-7-4 7-5-4Z"/><path d="M6 21h12"/></svg>',
+  simulador: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12v8H6z"/><path d="M8 12h2M14 12h2M9 16l-1 2M15 16l1 2"/><circle cx="12" cy="12" r="9" /></svg>',
+  monitor: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4"/><path d="M7 9h10M7 12h10" /></svg>',
   admin: '<svg class="fox-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg>'
 };
 
@@ -82,6 +84,8 @@ const NAV = [
   { href: "dashboard.html", icon: "dashboard", label: "Dashboard" },
   { href: "meu-pc.html", icon: "pc", label: "Meu PC" },
   { href: "benchmark.html", icon: "benchmark", label: "Benchmark" },
+  { href: "simulador.html", icon: "simulador", label: "Simulador" },
+  { href: "monitor.html", icon: "monitor", label: "Monitor" },
   { section: "Oportunidades" },
   { href: "radar-precos.html", icon: "radar", label: "Radar de Preços" },
   { href: "alertas.html", icon: "alerts", label: "Alertas" },
@@ -107,14 +111,15 @@ const FOXYN = {
 
 function renderSidebar(page) {
   let nav = "";
+  const pageFile = page ? `${page}.html` : "";
   for (const n of NAV) {
     if (n.section) nav += `<div class="fox-nav-section">${n.section}</div>`;
     else {
-      const active = page && n.href.includes(page) ? " active" : "";
+      const active = page && n.href === pageFile ? " active" : "";
       nav += `<a href="${n.href}" class="fox-nav-item${active}"><span class="fox-nav-icon">${ICONS[n.icon]}</span><span>${n.label}</span></a>`;
     }
   }
-  const pageLabel = (NAV.find((n) => n.href && n.href.includes(page)) || {}).label || (page === "admin" ? "Painel Admin" : "FOXYN");
+  const pageLabel = (NAV.find((n) => n.href === pageFile) || {}).label || (page === "admin" ? "Painel Admin" : "FOXYN");
 
   document.body.insertAdjacentHTML("afterbegin", `
     <nav id="foxSidebar" class="fox-sidebar">
