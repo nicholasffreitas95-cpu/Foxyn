@@ -14,8 +14,17 @@ from functools import partial
 APP_NAME = "FOXYN"
 PORT = 5173
 
-ROOT = Path(__file__).resolve().parent
-PUBLIC = (ROOT.parent / "public").resolve()
+if getattr(sys, "frozen", False):
+    # PyInstaller bundle
+    base = Path(sys.executable).resolve().parent
+    # tenta dist\FOXYN\public e também _MEIPASS\public
+    cand1 = base / "public"
+    cand2 = Path(getattr(sys, "_MEIPASS", str(base))) / "public"
+    PUBLIC = cand1 if cand1.exists() else cand2
+    ROOT = base
+else:
+    ROOT = Path(__file__).resolve().parent
+    PUBLIC = (ROOT.parent / "public").resolve()
 DATA_FILE = ROOT / "data.json"
 
 try:
