@@ -1,3 +1,5 @@
 psutil
-GPUtil
 websockets
+# GPUtil eh opcional e falha no Python 3.12+ (distutils removido)
+# Para GPU real: pip install gputil --no-deps  ou pynvml
+# Agente funciona sem GPUtil em modo simulado para GPU.
