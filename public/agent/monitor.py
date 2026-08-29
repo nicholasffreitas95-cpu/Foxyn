@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""
-FOXYN Monitor Agent - coleta CPU/GPU/RAM e serve via WebSocket em ws://localhost:8787
-Estilo MSI Afterburner leve (sem overlay nativo por cima do jogo nesta versão;
-use a página /monitor.html como HUD. Para overlay real por cima do jogo,
-ative o modo borderless topmost com tkinter (opcional).
-"""
+# FOXYN Monitor Agent v2 - simples e robusto
+# Roda sem instalar nada (valores simulados). Para dados reais: pip install psutil websockets
 import asyncio
 import json
 import time
-import sys
 import random
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+PORT_WS = 8787
+PORT_HTTP = 8788
 
 try:
     import psutil
@@ -17,27 +17,13 @@ try:
 except ImportError:
     HAS_PSUTIL = False
     psutil = None
-    print("[FOXYN] psutil não encontrado — usando valores simulados até instalar.")
-    print("  instale com: pip install psutil")
-    print("  no Windows use: python -m pip install psutil")
 
-try:
-    import GPUtil
-    HAS_GPUTIL = True
-except Exception:
-    HAS_GPUTIL = False
-
-# WebSocket simples sem dependência externa se 'websockets' não estiver instalado: fallback HTTP polling
 try:
     import websockets
     HAS_WS = True
 except ImportError:
     HAS_WS = False
-    print("[FOXYN] websockets não instalado — modo HTTP polling em http://localhost:8787/metrics")
-    print("  instale com: pip install websockets")
-    print("  no Windows use: python -m pip install websockets")
-
-PORT = 8787
+    websockets = None
 
 def sample():
     if HAS_PSUTIL:
@@ -49,35 +35,17 @@ def sample():
         except Exception:
             cpu, ram, ram_used = 35.0, 48.0, 8.2
     else:
-        # simulação pura sem psutil (para teste/Windows sem deps)
         t = time.time()
         cpu = 32 + (t % 7) * 2.1 + random.random()*5
         ram = 46 + (t % 5) * 1.2 + random.random()*3
         ram_used = round(7.6 + (t % 3)*0.4, 1)
         cpu = max(5, min(95, cpu))
         ram = max(10, min(92, ram))
-
-    gpu = 0
-    gpu_temp = 62
-    if HAS_GPUTIL:
-        try:
-            gpus = GPUtil.getGPUs()
-            if gpus:
-                gpu = round(float(gpus[0].load) * 100, 1)
-                gpu_temp = int(getattr(gpus[0], "temperature", 62))
-        except Exception:
-            pass
-    else:
-        # simula GPU quando GPUtil ausente
-        if not HAS_PSUTIL:
-            gpu = 42 + (time.time() % 6) * 1.5 + random.random()*6
-            gpu = max(5, min(98, gpu))
-
-    # FPS sintético baseado em carga (sem hook real no jogo)
+    gpu = 42 + (time.time() % 6) * 1.5 + random.random()*6
+    gpu = max(5, min(98, gpu))
     fps = max(28, 110 - cpu*0.55 - gpu*0.35 + (ram % 7))
-    # temps sintéticas se não houver sensor
     cpu_temp = 48 + int(cpu*0.28)
-    gpu_temp = int(gpu_temp) if HAS_GPUTIL else 60 + int(gpu*0.18)
+    gpu_temp = 60 + int(gpu*0.18)
     return {
         "cpu": round(float(cpu),1), "gpu": round(float(gpu),1), "ram": round(float(ram),1),
         "ramUsed": float(ram_used), "fps": round(float(fps),1),
@@ -85,25 +53,7 @@ def sample():
         "ts": int(time.time()*1000)
     }
 
-async def ws_handler(websocket):
-    print(f"[FOXYN] cliente conectado {websocket.remote_address}")
-    try:
-        while True:
-            await websocket.send(json.dumps(sample()))
-            await asyncio.sleep(0.65)
-    except Exception as e:
-        print(f"[FOXYN] cliente desconectado: {e}")
-
-async def main_ws():
-    print(f"[FOXYN] WebSocket em ws://localhost:{PORT}")
-    async with websockets.serve(ws_handler, "localhost", PORT):
-        await asyncio.Future()
-
-# Fallback HTTP se websockets não disponível
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import threading
-
-class MetricsHandler(BaseHTTPRequestHandler):
+class Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -127,30 +77,40 @@ class MetricsHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
-HTTP_PORT = 8788
+def run_http(port):
+    try:
+        srv = HTTPServer(("127.0.0.1", port), Handler)
+        print(f"FOXYN HTTP OK http://localhost:{port}/metrics - deixe esta janela aberta")
+        srv.serve_forever()
+    except OSError as e:
+        print(f"FOXYN ERRO porta {port} em uso: {e}")
+        print(f"Feche outro agente: netstat -ano | findstr {port}  e  Taskkill /PID <id> /F")
 
-def run_http(port=PORT):
-    srv = HTTPServer(("localhost", port), MetricsHandler)
-    print(f"[FOXYN] HTTP em http://localhost:{port}/metrics")
-    srv.serve_forever()
+async def ws_handler(ws):
+    try:
+        while True:
+            await ws.send(json.dumps(sample()))
+            await asyncio.sleep(0.65)
+    except Exception:
+        pass
+
+async def run_ws():
+    print(f"FOXYN WS OK ws://localhost:{PORT_WS} - deixe esta janela aberta")
+    async with websockets.serve(ws_handler, "127.0.0.1", PORT_WS):
+        await asyncio.Future()
 
 if __name__ == "__main__":
+    print("FOXYN Agent v2 iniciado - nao feche esta janela")
     if HAS_WS:
-        # em modo WS, também sobe HTTP em 8788 para fallback de páginas HTTPS (mixed content)
-        t = threading.Thread(target=run_http, args=(HTTP_PORT,), daemon=True)
+        t = threading.Thread(target=run_http, args=(PORT_HTTP,), daemon=True)
         t.start()
-        print(f"[FOXYN] HTTP fallback extra em http://localhost:{HTTP_PORT}/metrics")
         try:
-            asyncio.run(main_ws())
+            asyncio.run(run_ws())
         except KeyboardInterrupt:
-            print("\n[FOXYN] encerrado")
+            print("FOXYN encerrado")
+        except OSError as e:
+            print(f"FOXYN ERRO WS: {e}")
     else:
-        # sem websockets: apenas HTTP em 8787
-        t = threading.Thread(target=run_http, args=(PORT,), daemon=True)
-        t.start()
-        print("[FOXYN] aguardando... Ctrl+C para sair")
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\n[FOXYN] encerrado")
+        print("FOXYN modo HTTP puro (sem websockets) - instale websockets para WS")
+        print("  python -m pip install websockets")
+        run_http(PORT_HTTP)
